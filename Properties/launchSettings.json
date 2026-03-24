@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "NextValleyDock (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "NextValleyDock (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
