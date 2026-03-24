@@ -6,6 +6,10 @@ using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.IO;
 using System.Reflection;
+using System.Diagnostics;
+using System.Text;
+using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Media;
 
 namespace NextValleyDock
 {
@@ -75,7 +79,11 @@ namespace NextValleyDock
         [DllImport("user32.dll")]
         private static extern int SetWindowLong(IntPtr hwnd, int nIndex, int dwNewLong);
         private const int GWL_EXSTYLE = -20;
+        private const int GWL_STYLE = -16;
         private const int WS_EX_NOREDIRECTIONBITMAP = 0x00200000;
+        private const int WS_POPUP = unchecked((int)0x80000000);
+        private const int WS_CAPTION = 0x00C00000;
+        private const int WS_THICKFRAME = 0x00040000;
 
         // SetWindowCompositionAttribute for true transparency (same as TranslucentTB)
         private enum AccentState { DISABLED = 0, EnableGradient = 1, EnableBlurBehind = 2, EnableAcrylicBlurBehind = 4, InvalidState = 5 }
@@ -122,11 +130,16 @@ namespace NextValleyDock
         {
             this.InitializeComponent();
             this.Closed += MainWindow_Closed;
+
             this.ExtendsContentIntoTitleBar = true;
+
+            this.MinHeight = 16;
+            this.MinWidth = 16;
 
             // Set up the custom dock behavior FIRST (changes presenter)
             SetupDock();
             SetupClock();
+            SetupForegroundAppTracker();
 
             // Use custom Desktop Acrylic that stays active even when unfocused (like the Taskbar)
             this.SystemBackdrop = new AlwaysActiveDesktopAcrylic();
@@ -234,16 +247,22 @@ namespace NextValleyDock
             uint dpi = GetDpiForWindow(hWnd);
             double scale = dpi / 96.0;
 
+            // Remove native window styles that create invisible border hitboxes (which cause overlap)
+            int style = GetWindowLong(hWnd, GWL_STYLE);
+            style &= ~(WS_CAPTION | WS_THICKFRAME);
+            style |= WS_POPUP;
+            SetWindowLong(hWnd, GWL_STYLE, style);
+
             // Screen dimensions
             var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(appWindow.Id, Microsoft.UI.Windowing.DisplayAreaFallback.Primary);
 
-            // Verwijder de hoeken en frame
+            // Remove the corners and frame
             try {
                 var attribute = DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE;
                 var preference = (uint)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_DONOTROUND;
                 DwmSetWindowAttribute(hWnd, attribute, ref preference, sizeof(uint));
 
-                // Verwijder de standaard witte 1px Windows 11 border (DWMWA_COLOR_NONE)
+                // Remove the default white 1px Windows 11 border (DWMWA_COLOR_NONE)
                 var borderAttr = DWMWINDOWATTRIBUTE.DWMWA_BORDER_COLOR;
                 uint borderColor = 0xFFFFFFFE; 
                 DwmSetWindowAttribute(hWnd, borderAttr, ref borderColor, sizeof(uint));
@@ -259,9 +278,9 @@ namespace NextValleyDock
             _prevWndProc = SetWindowLongPtrW(_trayHwnd, GWLP_WNDPROC, Marshal.GetFunctionPointerForDelegate(_wndProc));
 
             _popupMenu = CreatePopupMenu();
-            InsertMenuW(_popupMenu, 0, MF_BYPOSITION | MF_STRING, (UIntPtr)IDM_SETTINGS, "Instellingen");
+            InsertMenuW(_popupMenu, 0, MF_BYPOSITION | MF_STRING, (UIntPtr)IDM_SETTINGS, "Settings");
             InsertMenuW(_popupMenu, 1, MF_BYPOSITION | MF_SEPARATOR, UIntPtr.Zero, "");
-            InsertMenuW(_popupMenu, 2, MF_BYPOSITION | MF_STRING, (UIntPtr)IDM_EXIT, "Afsluiten");
+            InsertMenuW(_popupMenu, 2, MF_BYPOSITION | MF_STRING, (UIntPtr)IDM_EXIT, "Exit");
 
             // Register Shell_NotifyIcon with tray window's HWND as callback
             var nid = new NOTIFYICONDATA
@@ -272,24 +291,21 @@ namespace NextValleyDock
                 uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP,
                 uCallbackMessage = WM_APP_TRAY,
                 hIcon = System.Drawing.SystemIcons.Application.Handle,
-                szTip = "Next Valley Dock"
+                szTip = "Project Valley"
             };
             Shell_NotifyIcon(NIM_ADD, ref nid);
 
             // Calculate height in physical pixels 
             // Reduced to 64 for a slimmer look, compatible with 40px search bar
-            double logicalHeight = 64; 
-            int dockHeight = (int)(logicalHeight * scale);
+            double logicalHeight = 32; 
+            int dockHeight = (int)Math.Ceiling(logicalHeight * scale);
             int screenWidth = displayArea.OuterBounds.Width;
 
-            // Register as AppBar
-            RegisterAppBar(hWnd, screenWidth, dockHeight);
-
-            // Position the window at absolute 0,0
-            appWindow.MoveAndResize(new RectInt32(0, 0, screenWidth, dockHeight));
+            // Register as AppBar and resize window
+            RegisterAppBar(hWnd, screenWidth, dockHeight, appWindow);
         }
 
-        private void RegisterAppBar(IntPtr hWnd, int width, int height)
+        private void RegisterAppBar(IntPtr hWnd, int width, int height, Microsoft.UI.Windowing.AppWindow appWindow)
         {
             APPBARDATA abd = new APPBARDATA();
             abd.cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA));
@@ -306,7 +322,14 @@ namespace NextValleyDock
             abd.rc.Bottom = height;
 
             SHAppBarMessage(ABM_QUERYPOS, ref abd);
+
+            // Ensure height remains exactly what we requested
+            abd.rc.Bottom = abd.rc.Top + height;
+
             SHAppBarMessage(ABM_SETPOS, ref abd);
+
+            // Accurately position based on Windows Shell's accepted rectangle
+            appWindow.MoveAndResize(new RectInt32(abd.rc.Left, abd.rc.Top, abd.rc.Right - abd.rc.Left, abd.rc.Bottom - abd.rc.Top));
         }
 
         private void UnregisterAppBar()
@@ -316,6 +339,95 @@ namespace NextValleyDock
             abd.cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA));
             abd.hWnd = hWnd;
             SHAppBarMessage(ABM_REMOVE, ref abd);
+        }
+
+        private DispatcherTimer? _foregroundTimer;
+        private IntPtr _lastForegroundHwnd = IntPtr.Zero;
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+        private void SetupForegroundAppTracker()
+        {
+            _foregroundTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+            _foregroundTimer.Tick += (s, e) => UpdateForegroundApp();
+            _foregroundTimer.Start();
+            UpdateForegroundApp();
+        }
+
+        private async void UpdateForegroundApp()
+        {
+            IntPtr hwnd = GetForegroundWindow();
+            if (hwnd == IntPtr.Zero || hwnd == _hWnd) return;
+            if (hwnd == _lastForegroundHwnd) return;
+            _lastForegroundHwnd = hwnd;
+
+            GetWindowThreadProcessId(hwnd, out uint pid);
+            if (pid == 0) return;
+
+            try
+            {
+                var proc = Process.GetProcessById((int)pid);
+
+                var sb = new StringBuilder(256);
+                GetWindowText(hwnd, sb, 256);
+                string appName = sb.ToString();
+
+                if (string.IsNullOrWhiteSpace(appName)) appName = proc.ProcessName;
+
+                ActiveAppName.Text = appName;
+
+                string exePath = proc.MainModule?.FileName ?? string.Empty;
+                if (!string.IsNullOrWhiteSpace(exePath) && File.Exists(exePath))
+                {
+                    var extractor = System.Drawing.Icon.ExtractAssociatedIcon(exePath);
+                    if (extractor != null)
+                    {
+                        using var bmp = extractor.ToBitmap();
+                        using var ms = new MemoryStream();
+                        bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        ms.Position = 0;
+                        var bitmapImage = new BitmapImage();
+                        await bitmapImage.SetSourceAsync(ms.AsRandomAccessStream());
+                        ActiveAppIcon.Source = bitmapImage;
+
+                        var domColor = GetDominantColor(bmp);
+                        ActiveAppIconContainer.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, domColor.R, domColor.G, domColor.B));
+                    }
+                }
+            }
+            catch
+            {
+                // Skip assignment if ProcessModule is restricted (e.g., system platform apps)
+            }
+        }
+
+        private Windows.UI.Color GetDominantColor(System.Drawing.Bitmap bmp)
+        {
+            long r = 0, g = 0, b = 0;
+            int count = 0;
+            for (int y = 0; y < bmp.Height; y += 2)
+            {
+                for (int x = 0; x < bmp.Width; x += 2)
+                {
+                    var p = bmp.GetPixel(x, y);
+                    if (p.A > 20)
+                    {
+                        r += p.R;
+                        g += p.G;
+                        b += p.B;
+                        count++;
+                    }
+                }
+            }
+            if (count == 0) return Windows.UI.Color.FromArgb(255, 128, 128, 128);
+            return Windows.UI.Color.FromArgb(255, (byte)(r / count), (byte)(g / count), (byte)(b / count));
         }
 
         private void SetupClock()

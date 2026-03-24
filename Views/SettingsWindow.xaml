@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Width="950" Height="660"
     MinWidth="800" MinHeight="500"
-    Title="Next Valley — Instellingen">
+    Title="Next Valley — Settings">
 
     <NavigationView x:Name="NavView"
                     PaneDisplayMode="Left"
@@ -18,19 +18,19 @@
                     IsBackButtonVisible="Collapsed">
 
         <NavigationView.MenuItems>
-            <NavigationViewItem x:Name="AlgemeenItem" Content="Algemeen" Tag="Algemeen">
+            <NavigationViewItem x:Name="GeneralItem" Content="General" Tag="General">
                 <NavigationViewItem.Icon><FontIcon Glyph="&#xE115;"/></NavigationViewItem.Icon>
             </NavigationViewItem>
 
             <NavigationViewItemSeparator/>
 
-            <NavigationViewItem Content="Paneel" Tag="Paneel">
+            <NavigationViewItem Content="Panel" Tag="Panel">
                 <NavigationViewItem.Icon><FontIcon Glyph="&#xE73F;"/></NavigationViewItem.Icon>
             </NavigationViewItem>
             <NavigationViewItem Content="Dock" Tag="Dock">
                 <NavigationViewItem.Icon><FontIcon Glyph="&#xE8F1;"/></NavigationViewItem.Icon>
             </NavigationViewItem>
-            <NavigationViewItem Content="Dynamische Dock" Tag="DynamischeDock">
+            <NavigationViewItem Content="Dynamic Dock" Tag="DynamicDock">
                 <NavigationViewItem.Icon><FontIcon Glyph="&#xE89A;"/></NavigationViewItem.Icon>
             </NavigationViewItem>
         </NavigationView.MenuItems>
@@ -39,10 +39,10 @@
             <Grid>
 
                 <!-- ALGEMEEN PAGE -->
-                <StackPanel x:Name="AlgemeenPage" Spacing="4" Visibility="Visible">
-                    <TextBlock Text="Algemeen" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,20"/>
+                <StackPanel x:Name="GeneralPage" Spacing="4" Visibility="Visible">
+                    <TextBlock Text="General" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,20"/>
 
-                    <TextBlock Text="Systeem" FontSize="13" FontWeight="SemiBold" Margin="2,8,0,6"
+                    <TextBlock Text="System" FontSize="13" FontWeight="SemiBold" Margin="2,8,0,6"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                     <Border CornerRadius="8"
@@ -60,8 +60,8 @@
                                 <FontIcon Glyph="&#xE7E8;" Foreground="White" FontSize="16"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Opstarten bij Windows" FontSize="14"/>
-                                <TextBlock Text="Start Next Valley automatisch bij het aanmelden"
+                                <TextBlock Text="Start with Windows" FontSize="14"/>
+                                <TextBlock Text="Start Project Valley automatically on login"
                                            FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             </StackPanel>
                             <ToggleSwitch x:Name="StartAtBootToggle" Grid.Column="2"
@@ -71,7 +71,7 @@
                         </Grid>
                     </Border>
 
-                    <TextBlock Text="Over" FontSize="13" FontWeight="SemiBold" Margin="2,20,0,6"
+                    <TextBlock Text="About" FontSize="13" FontWeight="SemiBold" Margin="2,20,0,6"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                     <Border CornerRadius="8"
@@ -87,8 +87,8 @@
                                 <FontIcon Glyph="&#xE946;" Foreground="White" FontSize="16"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Next Valley" FontSize="14"/>
-                                <TextBlock Text="Versie 0.1.0 — Vroege preview"
+                                <TextBlock Text="Project Valley" FontSize="14"/>
+                                <TextBlock Text="Version 0.1.0 — Early preview"
                                            FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             </StackPanel>
                         </Grid>
@@ -96,10 +96,10 @@
                 </StackPanel>
 
                 <!-- PANEEL PAGE -->
-                <StackPanel x:Name="PaneelPage" Spacing="4" Visibility="Collapsed">
-                    <TextBlock Text="Paneel" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,20"/>
+                <StackPanel x:Name="PanelPage" Spacing="4" Visibility="Collapsed">
+                    <TextBlock Text="Panel" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,20"/>
 
-                    <TextBlock Text="Uiterlijk" FontSize="13" FontWeight="SemiBold" Margin="2,8,0,6"
+                    <TextBlock Text="Look" FontSize="13" FontWeight="SemiBold" Margin="2,8,0,6"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                     <Border CornerRadius="8"
@@ -116,8 +116,8 @@
                                 <FontIcon Glyph="&#xE771;" Foreground="White" FontSize="16"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Transparante achtergrond" FontSize="14"/>
-                                <TextBlock Text="Gebruik een doorzichtige achtergrond"
+                                <TextBlock Text="Transparent background" FontSize="14"/>
+                                <TextBlock Text="Use a transparent background"
                                            FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             </StackPanel>
                             <ToggleSwitch Grid.Column="2" Margin="8,0,0,0" VerticalAlignment="Center"
@@ -139,8 +139,8 @@
                                 <FontIcon Glyph="&#xE8A1;" Foreground="White" FontSize="16"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Hoogte paneel (pixels)" FontSize="14"/>
-                                <TextBlock Text="Standaard: 64px"
+                                <TextBlock Text="Height panel (pixels)" FontSize="14"/>
+                                <TextBlock Text="Standard: 64px"
                                            FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             </StackPanel>
                             <NumberBox Grid.Column="2" Minimum="32" Maximum="128" Value="64"
@@ -156,7 +156,7 @@
                         <StackPanel HorizontalAlignment="Center" Spacing="6">
                             <FontIcon Glyph="&#xF142;" FontSize="28"
                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Meer paneelinstelling komen binnenkort"
+                            <TextBlock Text="More panelsettigns coming soon"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13"/>
                         </StackPanel>
@@ -172,8 +172,8 @@
                         <StackPanel HorizontalAlignment="Center" Spacing="8">
                             <FontIcon Glyph="&#xF142;" FontSize="36"
                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Dock instellingen" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Beschikbaar wanneer de Dock functie is toegevoegd"
+                            <TextBlock Text="Dock settings" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Available when dock functionality is added"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13"/>
                         </StackPanel>
@@ -181,19 +181,19 @@
                 </StackPanel>
 
                 <!-- DYNAMISCHE DOCK PAGE -->
-                <StackPanel x:Name="DynamischeDockPage" Spacing="4" Visibility="Collapsed">
-                    <TextBlock Text="Dynamische Dock" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,20"/>
+                <StackPanel x:Name="DynamicDockPage" Spacing="4" Visibility="Collapsed">
+                    <TextBlock Text="Dynamic Dock" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,20"/>
                     <Border CornerRadius="8" Background="{ThemeResource LayerFillColorDefaultBrush}"
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1" Padding="0,60" Margin="0,8">
                         <StackPanel HorizontalAlignment="Center" Spacing="8">
                             <FontIcon Glyph="&#xF142;" FontSize="36"
                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Dynamische Dock" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Combineert Dock en Paneel met ingebouwde system tray"
+                            <TextBlock Text="Dynamic Dock" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Combines Dock and Panel with build in system tray"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13"/>
-                            <TextBlock Text="Beschikbaar in een toekomstige versie"
+                            <TextBlock Text="Available in a future version"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12"
                                        Opacity="0.6"/>

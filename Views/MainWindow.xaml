@@ -20,7 +20,7 @@
       BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
       BorderThickness="0,0,0,1">
 
-    <!-- Achtergrond paneel met Mica/Acrylic-feel & afgeronde hoeken -->
+    <!-- Background panel with Mica/Acrylic-feel & ronded corners -->
         <!--<Border CornerRadius="22" 
                 Background="{ThemeResource LayerFillColorDefaultBrush}" 
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
@@ -33,49 +33,55 @@
                 <ThemeShadow />
             </Border.Shadow>-->
 
-            <Grid VerticalAlignment="Center" HorizontalAlignment="Stretch">
+            <Grid VerticalAlignment="Center" HorizontalAlignment="Stretch" Padding="15, 0, 15, 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <!-- 1. Weer Widget (Left) -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTipService.ToolTip="Weer">
+                <!-- 1. Weather Widget (Left) -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTipService.ToolTip="Weather">
                     <FontIcon Glyph="&#xE706;" FontSize="20" Foreground="Orange"/>
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Spacing="12">
                         <TextBlock Text="18°C" FontWeight="Bold" FontSize="13" />
-                        <TextBlock Text="Zonnig" FontSize="11" />
+                        <TextBlock Text="Sunny" FontSize="11" VerticalAlignment="Center" />
                     </StackPanel>
                 </StackPanel>
 
-                <!-- 2. Zoekbalk / Command Palette (Center) -->
-                <Border Grid.Column="1" CornerRadius="18" Background="{ThemeResource ControlFillColorDefaultBrush}" Height="36" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <!-- 2. Searchbar / Command Palette (Center) -->
+                <Border Grid.Column="1" CornerRadius="14" Background="{ThemeResource ControlFillColorDefaultBrush}" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
-                        <!-- Zoek Icoon -->
-                        <FontIcon Glyph="&#xE721;" FontSize="16" Margin="12,0,8,0" Foreground="Gray" VerticalAlignment="Center"/>
+                        <!-- Search Icon -->
+                        <FontIcon Glyph="&#xE721;" FontSize="14" Margin="10,0,6,0" Foreground="Gray" VerticalAlignment="Center"/>
 
-                        <!-- Zoek Tekst -->
-                        <TextBox PlaceholderText="Typ hier om te zoeken..." 
+                        <!-- Search text -->
+                        <TextBox PlaceholderText="Type here to search..." 
                                  Background="Transparent" 
                                  BorderThickness="0" 
                                  VerticalAlignment="Center" 
                                  PlaceholderForeground="Gray"
                                  Width="180"
-                                 FontSize="14"
-                                 Margin="0,0,8,0"/>
+                                 FontSize="12"
+                                 Margin="0,0,6,0"/>
 
-                        <!-- Geneste Pill 1: App Icoon -->
-                        <Border CornerRadius="14" Background="{ThemeResource SystemAccentColor}" Margin="0,4,4,4">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,6,0">
-                                <FontIcon Glyph="&#xE7FC;" FontSize="14" Foreground="White"/>
+                        <!-- Active App Pill -->
+                        <Grid Margin="0,2,2,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
 
-                                <!-- Geneste Pill 2: App Naam -->
-                                <Border CornerRadius="10" Background="#33000000" Margin="6,0,0,0" Padding="8,2">
-                                    <TextBlock Text="App Name" Foreground="White" FontSize="12" VerticalAlignment="Center"/>
-                                </Border>
-                            </StackPanel>
-                        </Border>
+                            <!-- App Icon Pill (ZIndex 1 makes it on top) -->
+                            <Border Grid.Column="0" x:Name="ActiveAppIconContainer" CornerRadius="12" Background="{ThemeResource SystemAccentColor}" Padding="6,2" Canvas.ZIndex="1">
+                                <Image x:Name="ActiveAppIcon" Width="16" Height="16" VerticalAlignment="Center"/>
+                            </Border>
+
+                            <!-- App Name Pill (Negative margin left makes it slide under icon pill) -->
+                            <Border Grid.Column="1" Padding="14,2,10,2" Margin="-12,0,0,0" CornerRadius="12" Background="{ThemeResource LayerFillColorDefaultBrush}" VerticalAlignment="Stretch">
+                                <TextBlock x:Name="ActiveAppName" Text="App Name" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="11" VerticalAlignment="Center" Margin="0,0,0,0"/>
+                            </Border>
+                        </Grid>
                     </StackPanel>
                 </Border>
 
@@ -83,13 +89,13 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="24" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <!-- Control Center -->
                     <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
-                        <Button Background="Transparent" BorderThickness="0" Padding="6">
+                        <Button Background="Transparent" BorderThickness="0" Padding="0">
                             <FontIcon Glyph="&#xE701;" FontSize="16"/>
                         </Button>
-                        <Button Background="Transparent" BorderThickness="0" Padding="6">
+                        <Button Background="Transparent" BorderThickness="0" Padding="0">
                             <FontIcon Glyph="&#xE767;" FontSize="16"/>
                         </Button>
-                        <Button Background="Transparent" BorderThickness="0" Padding="6">
+                        <Button Background="Transparent" BorderThickness="0" Padding="0">
                             <FontIcon Glyph="&#xE83F;" FontSize="16"/>
                         </Button>
                     </StackPanel>
@@ -97,10 +103,10 @@
                     <!-- Divider -->
                     <!--<Rectangle Width="1" Height="20" Fill="Gray" Opacity="0.3" VerticalAlignment="Center"/>-->
 
-                    <!-- Datum / Tijd -->
-                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Spacing="8" ToolTipService.ToolTip="Kalender en Meldingen">
-                        <TextBlock x:Name="DateTextBlock" Text="vr 12 oktober" FontSize="12" VerticalAlignment="Center" />
-                        <TextBlock x:Name="TimeTextBlock" Text="10:41" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
+                    <!-- Date / Time -->
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Spacing="8" ToolTipService.ToolTip="Calendar and notifications">
+                        <TextBlock x:Name="DateTextBlock" Text="date" FontSize="12" VerticalAlignment="Center" />
+                        <TextBlock x:Name="TimeTextBlock" Text="time" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
                     </StackPanel>
                 </StackPanel>
 

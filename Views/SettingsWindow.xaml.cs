@@ -14,7 +14,7 @@ namespace NextValleyDock.Views
             this.SystemBackdrop = new Microsoft.UI.Xaml.Media.MicaBackdrop();
 
             // Select first nav item
-            NavView.SelectedItem = AlgemeenItem;
+            NavView.SelectedItem = GeneralItem;
 
             CheckStartupStatus();
         }
@@ -58,10 +58,10 @@ namespace NextValleyDock.Views
         {
             var tag = (args.SelectedItem as NavigationViewItem)?.Tag?.ToString();
 
-            AlgemeenPage.Visibility      = tag == "Algemeen"       ? Visibility.Visible : Visibility.Collapsed;
-            PaneelPage.Visibility        = tag == "Paneel"          ? Visibility.Visible : Visibility.Collapsed;
+            GeneralPage.Visibility      = tag == "General"       ? Visibility.Visible : Visibility.Collapsed;
+            PanelPage.Visibility        = tag == "Panel"          ? Visibility.Visible : Visibility.Collapsed;
             DockPage.Visibility          = tag == "Dock"            ? Visibility.Visible : Visibility.Collapsed;
-            DynamischeDockPage.Visibility = tag == "DynamischeDock" ? Visibility.Visible : Visibility.Collapsed;
+            DynamicDockPage.Visibility = tag == "DynamicDock" ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }
