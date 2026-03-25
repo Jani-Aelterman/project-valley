@@ -10,6 +10,8 @@ using System.Diagnostics;
 using System.Text;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Media;
+using NAudio.CoreAudioApi;
+using Windows.Networking.Connectivity;
 
 namespace NextValleyDock
 {
@@ -140,6 +142,7 @@ namespace NextValleyDock
             SetupDock();
             SetupClock();
             SetupForegroundAppTracker();
+            SetupStatusIcons();
 
             // Use custom Desktop Acrylic that stays active even when unfocused (like the Taskbar)
             this.SystemBackdrop = new AlwaysActiveDesktopAcrylic();
@@ -186,6 +189,10 @@ namespace NextValleyDock
 
         private Views.SettingsWindow? _settingsWindow;
 
+        private const uint WM_DISPLAYCHANGE = 0x007E;
+        private const uint WM_DPICHANGED = 0x02E0;
+        private const uint WM_SETTINGCHANGE = 0x001A;
+
         // Custom WndProc: intercepts tray icon right-click notification (runs on UI thread)
         private IntPtr CustomWndProc(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
@@ -197,6 +204,16 @@ namespace NextValleyDock
                 if (cmd == IDM_SETTINGS) OpenSettings();
                 else if (cmd == IDM_EXIT) Application.Current.Exit();
                 return IntPtr.Zero;
+            }
+            if (msg == WM_DISPLAYCHANGE || msg == WM_DPICHANGED || msg == WM_SETTINGCHANGE)
+            {
+                // Give Windows Shell a brief moment to stabilize the Work Area before querying
+                var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+                timer.Tick += (s, e) => {
+                    timer.Stop();
+                    UpdateDockPosition();
+                };
+                timer.Start();
             }
             return CallWindowProc(_prevWndProc, hwnd, msg, wParam, lParam);
         }
@@ -215,6 +232,8 @@ namespace NextValleyDock
 
         private void MainWindow_Closed(object sender, WindowEventArgs args)
         {
+            if (_foregroundHook != IntPtr.Zero) UnhookWinEvent(_foregroundHook);
+
             // Clean up tray icon and menu
             if (_trayHwnd != IntPtr.Zero)
             {
@@ -297,6 +316,17 @@ namespace NextValleyDock
 
             // Calculate height in physical pixels 
             // Reduced to 64 for a slimmer look, compatible with 40px search bar
+            UpdateDockPosition();
+        }
+
+        private void UpdateDockPosition()
+        {
+            var appWindow = this.AppWindow;
+            IntPtr hWnd = Microsoft.UI.Win32Interop.GetWindowFromWindowId(appWindow.Id);
+            uint dpi = GetDpiForWindow(hWnd);
+            double scale = dpi / 96.0;
+            var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(appWindow.Id, Microsoft.UI.Windowing.DisplayAreaFallback.Primary);
+
             double logicalHeight = 32; 
             int dockHeight = (int)Math.Ceiling(logicalHeight * scale);
             int screenWidth = displayArea.OuterBounds.Width;
@@ -341,7 +371,6 @@ namespace NextValleyDock
             SHAppBarMessage(ABM_REMOVE, ref abd);
         }
 
-        private DispatcherTimer? _foregroundTimer;
         private IntPtr _lastForegroundHwnd = IntPtr.Zero;
 
         [DllImport("user32.dll")]
@@ -353,58 +382,119 @@ namespace NextValleyDock
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
+        private WinEventDelegate? _foregroundDelegate;
+        private IntPtr _foregroundHook = IntPtr.Zero;
+
+        private delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
+
+        [DllImport("user32.dll")]
+        private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern IntPtr OpenProcess(uint dwDesiredAccess, bool bInheritHandle, uint dwProcessId);
+
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern bool QueryFullProcessImageName(IntPtr hProcess, uint dwFlags, StringBuilder lpExeName, ref uint lpdwSize);
+
+        [DllImport("kernel32.dll")]
+        private static extern bool CloseHandle(IntPtr hObject);
+
+        private const uint EVENT_SYSTEM_FOREGROUND = 3;
+        private const uint WINEVENT_OUTOFCONTEXT = 0;
+        private const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+
         private void SetupForegroundAppTracker()
         {
-            _foregroundTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
-            _foregroundTimer.Tick += (s, e) => UpdateForegroundApp();
-            _foregroundTimer.Start();
-            UpdateForegroundApp();
+            _foregroundDelegate = new WinEventDelegate(WinEventProc);
+            _foregroundHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, _foregroundDelegate, 0, 0, WINEVENT_OUTOFCONTEXT);
+            UpdateForegroundApp(GetForegroundWindow());
         }
 
-        private async void UpdateForegroundApp()
+        private void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
-            IntPtr hwnd = GetForegroundWindow();
-            if (hwnd == IntPtr.Zero || hwnd == _hWnd) return;
-            if (hwnd == _lastForegroundHwnd) return;
+            if (eventType == EVENT_SYSTEM_FOREGROUND)
+            {
+                UpdateForegroundApp(hwnd);
+            }
+        }
+
+        private async void UpdateForegroundApp(IntPtr hwnd)
+        {
+            if (hwnd == IntPtr.Zero || hwnd == _hWnd || hwnd == _lastForegroundHwnd) return;
             _lastForegroundHwnd = hwnd;
 
             GetWindowThreadProcessId(hwnd, out uint pid);
             if (pid == 0) return;
 
-            try
+            var sb = new StringBuilder(256);
+            GetWindowText(hwnd, sb, 256);
+            string windowTitle = sb.ToString();
+
+            // Background task for icon extraction & lockbits coloring
+            var result = await System.Threading.Tasks.Task.Run(() =>
             {
-                var proc = Process.GetProcessById((int)pid);
+                string appName = windowTitle;
+                string exePath = string.Empty;
 
-                var sb = new StringBuilder(256);
-                GetWindowText(hwnd, sb, 256);
-                string appName = sb.ToString();
+                IntPtr hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+                if (hProcess != IntPtr.Zero)
+                {
+                    uint size = 1024;
+                    var pathBuffer = new StringBuilder(1024);
+                    if (QueryFullProcessImageName(hProcess, 0, pathBuffer, ref size))
+                    {
+                        exePath = pathBuffer.ToString();
+                        if (string.IsNullOrWhiteSpace(appName)) appName = Path.GetFileNameWithoutExtension(exePath);
+                    }
+                    else
+                    {
+                        try { appName = string.IsNullOrWhiteSpace(appName) ? Process.GetProcessById((int)pid).ProcessName : appName; } catch { }
+                    }
+                    CloseHandle(hProcess);
+                }
 
-                if (string.IsNullOrWhiteSpace(appName)) appName = proc.ProcessName;
+                if (string.IsNullOrWhiteSpace(appName)) appName = "Unknown";
 
-                ActiveAppName.Text = appName;
+                byte[]? iconStream = null;
+                Windows.UI.Color domColor = Windows.UI.Color.FromArgb(255, 128, 128, 128);
 
-                string exePath = proc.MainModule?.FileName ?? string.Empty;
                 if (!string.IsNullOrWhiteSpace(exePath) && File.Exists(exePath))
                 {
-                    var extractor = System.Drawing.Icon.ExtractAssociatedIcon(exePath);
-                    if (extractor != null)
+                    try
                     {
-                        using var bmp = extractor.ToBitmap();
-                        using var ms = new MemoryStream();
-                        bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                        ms.Position = 0;
-                        var bitmapImage = new BitmapImage();
-                        await bitmapImage.SetSourceAsync(ms.AsRandomAccessStream());
-                        ActiveAppIcon.Source = bitmapImage;
+                        var extractor = System.Drawing.Icon.ExtractAssociatedIcon(exePath);
+                        if (extractor != null)
+                        {
+                            using var bmp = extractor.ToBitmap();
+                            domColor = GetDominantColor(bmp);
 
-                        var domColor = GetDominantColor(bmp);
-                        ActiveAppIconContainer.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, domColor.R, domColor.G, domColor.B));
+                            using var ms = new MemoryStream();
+                            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                            iconStream = ms.ToArray();
+                        }
                     }
+                    catch { } 
                 }
-            }
-            catch
+
+                return new { AppName = appName, IconBytes = iconStream, Color = domColor };
+            });
+
+            ActiveAppName.Text = result.AppName;
+            ActiveAppIconContainer.Background = new SolidColorBrush(result.Color);
+
+            if (result.IconBytes != null)
             {
-                // Skip assignment if ProcessModule is restricted (e.g., system platform apps)
+                using var ms = new MemoryStream(result.IconBytes);
+                var bitmapImage = new BitmapImage();
+                await bitmapImage.SetSourceAsync(ms.AsRandomAccessStream());
+                ActiveAppIcon.Source = bitmapImage;
+            }
+            else
+            {
+                ActiveAppIcon.Source = null;
             }
         }
 
@@ -412,22 +502,209 @@ namespace NextValleyDock
         {
             long r = 0, g = 0, b = 0;
             int count = 0;
-            for (int y = 0; y < bmp.Height; y += 2)
+            
+            var data = bmp.LockBits(new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            int bytes = Math.Abs(data.Stride) * bmp.Height;
+            byte[] rgbValues = new byte[bytes];
+            Marshal.Copy(data.Scan0, rgbValues, 0, bytes);
+            bmp.UnlockBits(data);
+
+            for (int i = 0; i < bytes; i += 4)
             {
-                for (int x = 0; x < bmp.Width; x += 2)
+                if (rgbValues[i + 3] > 20)
                 {
-                    var p = bmp.GetPixel(x, y);
-                    if (p.A > 20)
-                    {
-                        r += p.R;
-                        g += p.G;
-                        b += p.B;
-                        count++;
-                    }
+                    b += rgbValues[i];
+                    g += rgbValues[i + 1];
+                    r += rgbValues[i + 2];
+                    count++;
                 }
             }
             if (count == 0) return Windows.UI.Color.FromArgb(255, 128, 128, 128);
             return Windows.UI.Color.FromArgb(255, (byte)(r / count), (byte)(g / count), (byte)(b / count));
+        }
+
+        [DllImport("user32.dll")]
+        private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+        
+        private const byte VK_LWIN = 0x5B;
+        private const uint KEYEVENTF_KEYUP = 0x0002;
+
+        private void SimulateWinKey(byte key)
+        {
+            keybd_event(VK_LWIN, 0, 0, UIntPtr.Zero);
+            keybd_event(key, 0, 0, UIntPtr.Zero);
+            keybd_event(key, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+            keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+        }
+
+        private void OpenWidgets(object sender, RoutedEventArgs e) => SimulateWinKey(0x57); // Win + W
+        private void OpenActionCenter(object sender, RoutedEventArgs e) => SimulateWinKey(0x41); // Win + A
+        private void OpenCalendar(object sender, RoutedEventArgs e) => SimulateWinKey(0x4E); // Win + N
+
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct SYSTEM_POWER_STATUS
+        {
+            public byte ACLineStatus;
+            public byte BatteryFlag;
+            public byte BatteryLifePercent;
+            public byte SystemStatusFlag;
+            public int BatteryLifeTime;
+            public int BatteryFullLifeTime;
+        }
+
+        [DllImport("kernel32.dll")]
+        private static extern bool GetSystemPowerStatus(out SYSTEM_POWER_STATUS sps);
+
+        private DispatcherTimer? _statusTimer;
+
+        private void SetupStatusIcons()
+        {
+            _statusTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2.5) };
+            _statusTimer.Tick += (s, e) => UpdateStatusIcons();
+            _statusTimer.Start();
+            UpdateStatusIcons();
+        }
+
+        private void UpdateStatusIcons()
+        {
+            // --- Battery ---
+            if (GetSystemPowerStatus(out var sps))
+            {
+                int pct = sps.BatteryLifePercent;
+                bool showPct = false;
+                try
+                {
+                    using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\NextValleyDock");
+                    if (key?.GetValue("ShowBatteryPercentage") is int val) showPct = val == 1;
+                }
+                catch { }
+                
+                if (showPct && sps.BatteryFlag != 128)
+                {
+                    BatteryPercentageText.Text = $"{pct}%";
+                    BatteryPercentageText.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    BatteryPercentageText.Visibility = Visibility.Collapsed;
+                }
+
+                if (sps.ACLineStatus == 1) // Plugged in
+                {
+                    BatteryIcon.Glyph = "\xEBB5";
+                }
+                else if (sps.BatteryFlag != 128)
+                {
+                    if (pct <= 10) BatteryIcon.Glyph = "\xE850";
+                    else if (pct <= 20) BatteryIcon.Glyph = "\xE851";
+                    else if (pct <= 30) BatteryIcon.Glyph = "\xE852";
+                    else if (pct <= 40) BatteryIcon.Glyph = "\xE853";
+                    else if (pct <= 50) BatteryIcon.Glyph = "\xE854";
+                    else if (pct <= 60) BatteryIcon.Glyph = "\xE855";
+                    else if (pct <= 70) BatteryIcon.Glyph = "\xE856";
+                    else if (pct <= 80) BatteryIcon.Glyph = "\xE857";
+                    else if (pct <= 90) BatteryIcon.Glyph = "\xE858";
+                    else BatteryIcon.Glyph = "\xE83F";
+                }
+            }
+
+            // --- Network ---
+            bool isWifi = false;
+            byte signalBars = 4;
+            var profiles = NetworkInformation.GetConnectionProfiles();
+            
+            if (profiles != null)
+            {
+                foreach (var p in profiles)
+                {
+                    if (p.IsWlanConnectionProfile && p.GetNetworkConnectivityLevel() != NetworkConnectivityLevel.None)
+                    {
+                        isWifi = true;
+                        signalBars = p.GetSignalBars() ?? 4;
+                        if (p.GetNetworkConnectivityLevel() == NetworkConnectivityLevel.InternetAccess) break;
+                    }
+                }
+            }
+
+            bool isPhysicalEthernetUp = false;
+            bool isPhysicalWlanUp = false;
+            try
+            {
+                foreach (var ni in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
+                {
+                    if (ni.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up)
+                    {
+                        if (ni.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Wireless80211)
+                        {
+                            isPhysicalWlanUp = true;
+                        }
+                        else if (ni.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Ethernet)
+                        {
+                            string desc = ni.Description.ToLower();
+                            if (!desc.Contains("virtual") && !desc.Contains("vethernet") && !desc.Contains("hyper") && 
+                                !desc.Contains("pseudo") && !desc.Contains("vpn") && !desc.Contains("tap") &&
+                                !desc.Contains("vmware") && !desc.Contains("wsl") && !desc.Contains("multiplexor") &&
+                                !desc.Contains("bridge") && !desc.Contains("host-only") && !desc.Contains("bluetooth"))
+                            {
+                                var props = ni.GetIPProperties();
+                                // If it has a gateway, it's a real active internet/LAN connection
+                                if (props.GatewayAddresses.Count > 0)
+                                {
+                                    isPhysicalEthernetUp = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            var internetProfile = NetworkInformation.GetInternetConnectionProfile();
+
+            if (isWifi || (isPhysicalWlanUp && !isPhysicalEthernetUp))
+            {
+                if (signalBars == 1) NetworkIcon.Glyph = "\xE872"; 
+                else if (signalBars == 2) NetworkIcon.Glyph = "\xE873";
+                else if (signalBars == 3) NetworkIcon.Glyph = "\xE874";
+                else NetworkIcon.Glyph = "\xE701"; 
+            }
+            else if (isPhysicalEthernetUp)
+            {
+                NetworkIcon.Glyph = "\xE839"; // Ethernet
+            }
+            else if (internetProfile == null && !isWifi && !isPhysicalWlanUp)
+            {
+                NetworkIcon.Glyph = "\xEB55"; // Globe disconnected
+            }
+            else
+            {
+                NetworkIcon.Glyph = "\xE701"; // Fallback to Wi-Fi
+            }
+
+            // --- Audio Volume ---
+            try
+            {
+                using var enumerator = new MMDeviceEnumerator();
+                var dev = enumerator.GetDefaultAudioEndpoint(NAudio.CoreAudioApi.DataFlow.Render, NAudio.CoreAudioApi.Role.Multimedia);
+                if (dev.AudioEndpointVolume.Mute)
+                {
+                    VolumeIcon.Glyph = "\xE74F";
+                }
+                else
+                {
+                    float vol = dev.AudioEndpointVolume.MasterVolumeLevelScalar;
+                    if (vol == 0) VolumeIcon.Glyph = "\xE992";
+                    else if (vol < 0.33) VolumeIcon.Glyph = "\xE993";
+                    else if (vol < 0.66) VolumeIcon.Glyph = "\xE994";
+                    else VolumeIcon.Glyph = "\xE767";
+                }
+            }
+            catch
+            {
+                VolumeIcon.Glyph = "\xE74F";
+            }
         }
 
         private void SetupClock()
@@ -446,6 +723,7 @@ namespace NextValleyDock
         {
             TimeTextBlock.Text = DateTime.Now.ToString("HH:mm");
             DateTextBlock.Text = DateTime.Now.ToString("ddd d MMMM"); 
+
         }
     }
 }

@@ -41,13 +41,15 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- 1. Weather Widget (Left) -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTipService.ToolTip="Weather">
-                    <FontIcon Glyph="&#xE706;" FontSize="20" Foreground="Orange"/>
-                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Spacing="12">
-                        <TextBlock Text="18°C" FontWeight="Bold" FontSize="13" />
-                        <TextBlock Text="Sunny" FontSize="11" VerticalAlignment="Center" />
+                <Button Grid.Column="0" Background="Transparent" BorderThickness="0" Padding="8,4" CornerRadius="6" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTipService.ToolTip="Weather" Click="OpenWidgets">
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE706;" FontSize="20" Foreground="Orange"/>
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="18°C" FontWeight="Bold" FontSize="13" />
+                            <TextBlock Text="Sunny" FontSize="11" VerticalAlignment="Center" />
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
+                </Button>
 
                 <!-- 2. Searchbar / Command Palette (Center) -->
                 <Border Grid.Column="1" CornerRadius="14" Background="{ThemeResource ControlFillColorDefaultBrush}" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -86,28 +88,26 @@
                 </Border>
 
                 <!-- 3. Status Area (Right) -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="24" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <!-- Control Center -->
-                    <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
-                        <Button Background="Transparent" BorderThickness="0" Padding="0">
-                            <FontIcon Glyph="&#xE701;" FontSize="16"/>
-                        </Button>
-                        <Button Background="Transparent" BorderThickness="0" Padding="0">
-                            <FontIcon Glyph="&#xE767;" FontSize="16"/>
-                        </Button>
-                        <Button Background="Transparent" BorderThickness="0" Padding="0">
-                            <FontIcon Glyph="&#xE83F;" FontSize="16"/>
-                        </Button>
-                    </StackPanel>
-
-                    <!-- Divider -->
-                    <!--<Rectangle Width="1" Height="20" Fill="Gray" Opacity="0.3" VerticalAlignment="Center"/>-->
+                    <Button Background="Transparent" BorderThickness="0" Padding="12,6" CornerRadius="6" VerticalAlignment="Center" ToolTipService.ToolTip="Quick settings" Click="OpenActionCenter">
+                        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                            <FontIcon x:Name="NetworkIcon" Glyph="&#xE701;" FontSize="14"/>
+                            <FontIcon x:Name="VolumeIcon" Glyph="&#xE767;" FontSize="14"/>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock x:Name="BatteryPercentageText" Text="100%" FontSize="11" VerticalAlignment="Center" Visibility="Collapsed"/>
+                                <FontIcon x:Name="BatteryIcon" Glyph="&#xE83F;" FontSize="14"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Button>
 
                     <!-- Date / Time -->
-                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Spacing="8" ToolTipService.ToolTip="Calendar and notifications">
-                        <TextBlock x:Name="DateTextBlock" Text="date" FontSize="12" VerticalAlignment="Center" />
-                        <TextBlock x:Name="TimeTextBlock" Text="time" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
-                    </StackPanel>
+                    <Button Background="Transparent" BorderThickness="0" Padding="8,6" CornerRadius="6" VerticalAlignment="Center" ToolTipService.ToolTip="Calendar and notifications" Click="OpenCalendar">
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Spacing="8">
+                            <TextBlock x:Name="DateTextBlock" Text="date" FontSize="11" VerticalAlignment="Center" />
+                            <TextBlock x:Name="TimeTextBlock" Text="time" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
 
             </Grid>

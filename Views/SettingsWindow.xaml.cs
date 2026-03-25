@@ -17,6 +17,14 @@ namespace NextValleyDock.Views
             NavView.SelectedItem = GeneralItem;
 
             CheckStartupStatus();
+
+            try
+            {
+                using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\NextValleyDock");
+                if (key?.GetValue("ShowBatteryPercentage") is int val)
+                    ShowBatteryPercentageToggle.IsOn = val == 1;
+            }
+            catch { }
         }
 
         private const string RunKey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
@@ -50,6 +58,16 @@ namespace NextValleyDock.Views
                 {
                     key.DeleteValue(AppName, false);
                 }
+            }
+            catch { }
+        }
+
+        private void ToggleBatteryPercentage_Toggled(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("SOFTWARE\\NextValleyDock");
+                key.SetValue("ShowBatteryPercentage", ShowBatteryPercentageToggle.IsOn ? 1 : 0);
             }
             catch { }
         }

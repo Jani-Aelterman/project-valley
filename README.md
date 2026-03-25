@@ -10,6 +10,19 @@
 
 ---
 
+## 📸 Preview
+
+<p align="center">
+  <img src="images/top-panel-preview.png" alt="Top Panel Preview" width="800"/>
+  <br/>
+  <i>Current progress on the Top Panel (Status Bar).</i>
+</p>
+
+> [!NOTE]
+> The bottom dock shown in the screenshot above is currently **MyDockFinder** (a third-party tool) used for demonstration. The native Project Valley dock is currently under development and will replace it soon!
+
+---
+
 ## 📖 About The Project
 
 Project Valley is an open-source Desktop Environment (DE) enhancement for Windows 11. Inspired by the "Next Valley" design concepts, it replaces the traditional Windows taskbar with a modular, floating dock and a sleek top panel. 
