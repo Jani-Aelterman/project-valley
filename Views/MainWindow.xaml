@@ -95,8 +95,8 @@
                             <FontIcon x:Name="NetworkIcon" Glyph="&#xE701;" FontSize="14"/>
                             <FontIcon x:Name="VolumeIcon" Glyph="&#xE767;" FontSize="14"/>
                             <StackPanel Orientation="Horizontal" Spacing="4">
-                                <TextBlock x:Name="BatteryPercentageText" Text="100%" FontSize="11" VerticalAlignment="Center" Visibility="Collapsed"/>
                                 <FontIcon x:Name="BatteryIcon" Glyph="&#xE83F;" FontSize="14"/>
+                                <TextBlock x:Name="BatteryPercentageText" Text="100%" FontSize="11" VerticalAlignment="Center" Visibility="Visible"/>
                             </StackPanel>
                         </StackPanel>
                     </Button>

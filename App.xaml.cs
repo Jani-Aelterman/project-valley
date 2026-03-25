@@ -9,27 +9,49 @@ namespace NextValleyDock
     /// </summary>
     public partial class App : Application
     {
-        private Window? window;
-
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
-        public App()
-        {
-            this.InitializeComponent();
-        }
-
-        /// <summary>
-        /// Invoked when the application is launched normally by the end user.  Other entry points
-        /// will be used such as when the application is launched to open a specific file.
-        /// </summary>
-        /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            window = new MainWindow();
-            window.Activate();
+            m_window = new MainWindow();
+            WinUIEx.WindowExtensions.SetIcon(m_window, "Assets/Project-Valley-Logo.png");
+            m_window.Activate();
+
+            m_dockWindow = new Views.DockWindow();
+            WinUIEx.WindowExtensions.SetIcon(m_dockWindow, "Assets/Project-Valley-Logo.png");
+            
+            Helpers.SettingsManager.SettingChanged += OnSettingChanged;
+            ApplyDockSettings();
         }
+
+        private void OnSettingChanged(object? sender, string settingName)
+        {
+            if (settingName == "ShowDock" || settingName == "HideTaskbar")
+            {
+                m_window?.DispatcherQueue.TryEnqueue(() => ApplyDockSettings());
+            }
+        }
+
+        private void ApplyDockSettings()
+        {
+            if (m_dockWindow == null) return;
+
+            if (Helpers.SettingsManager.ShowDock)
+            {
+                m_dockWindow.Activate();
+                
+                if (Helpers.SettingsManager.HideTaskbar)
+                    Helpers.TaskbarManager.Hide();
+                else
+                    Helpers.TaskbarManager.Show();
+            }
+            else
+            {
+                m_dockWindow.AppWindow.Hide();
+                Helpers.TaskbarManager.Show();
+            }
+        }
+
+        private Window? m_window;
+        private Views.DockWindow? m_dockWindow;
 
         /// <summary>
         /// Invoked when Navigation to a certain page fails

@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI;
 using System;
+using NextValleyDock.Helpers;
 using Windows.Graphics;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
@@ -18,36 +19,6 @@ namespace NextValleyDock
     public sealed partial class MainWindow : WinUIEx.WindowEx
     {
         private DispatcherTimer? dispatcherTimer;
-
-        // P/Invoke and AppBar definitions
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct APPBARDATA
-        {
-            public uint cbSize;
-            public IntPtr hWnd;
-            public uint uCallbackMessage;
-            public uint uEdge;
-            public RECT rc;
-            public IntPtr lParam;
-        }
-
-        private const uint ABM_NEW = 0x00000000;
-        private const uint ABM_REMOVE = 0x00000001;
-        private const uint ABM_QUERYPOS = 0x00000002;
-        private const uint ABM_SETPOS = 0x00000003;
-        private const uint ABE_TOP = 1;
-
-        [DllImport("shell32.dll", CallingConvention = CallingConvention.StdCall)]
-        private static extern IntPtr SHAppBarMessage(uint dwMessage, ref APPBARDATA pData);
 
         [DllImport("user32.dll")]
         private static extern uint GetDpiForWindow(IntPtr hwnd);
@@ -146,47 +117,34 @@ namespace NextValleyDock
 
             // Use custom Desktop Acrylic that stays active even when unfocused (like the Taskbar)
             this.SystemBackdrop = new AlwaysActiveDesktopAcrylic();
+
+            // Load settings and listen for changes
+            Helpers.SettingsManager.SettingChanged += OnSettingChanged;
+            ApplyPanelSettings();
         }
 
-        // Custom SystemBackdrop that forces IsInputActive to true, preventing the backdrop from 
-        // falling back to a solid color when the panel loses focus.
-        public class AlwaysActiveDesktopAcrylic : Microsoft.UI.Xaml.Media.SystemBackdrop
+        private void OnSettingChanged(object? sender, string settingName)
         {
-            private Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController? _controller;
-
-            protected override void OnTargetConnected(Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop connectedTarget, Microsoft.UI.Xaml.XamlRoot xamlRoot)
+            if (settingName == "ShowTopPanel")
             {
-                base.OnTargetConnected(connectedTarget, xamlRoot);
-                _controller = new Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController();
-                
-                var configuration = new Microsoft.UI.Composition.SystemBackdrops.SystemBackdropConfiguration();
-                
-                // CRUCIAL: Force it to be always active so it never dims when clicking outside the panel
-                configuration.IsInputActive = true; 
-
-                switch (Application.Current.RequestedTheme)
-                {
-                    case ApplicationTheme.Dark: configuration.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Dark; break;
-                    case ApplicationTheme.Light: configuration.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Light; break;
-                    default: configuration.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Default; break;
-                }
-
-                _controller.SetSystemBackdropConfiguration(configuration);
-                _controller.AddSystemBackdropTarget(connectedTarget);
-            }
-
-            protected override void OnTargetDisconnected(Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop disconnectedTarget)
-            {
-                base.OnTargetDisconnected(disconnectedTarget);
-                if (_controller != null)
-                {
-                    _controller.RemoveSystemBackdropTarget(disconnectedTarget);
-                    _controller.Dispose();
-                    _controller = null;
-                }
+                this.DispatcherQueue.TryEnqueue(() => ApplyPanelSettings());
             }
         }
 
+        private void ApplyPanelSettings()
+        {
+            bool show = Helpers.SettingsManager.ShowTopPanel;
+            if (show)
+            {
+                UpdateDockPosition(); 
+                this.AppWindow.Show();
+            }
+            else
+            {
+                UnregisterAppBar();
+                this.AppWindow.Hide();
+            }
+        }
         private Views.SettingsWindow? _settingsWindow;
 
         private const uint WM_DISPLAYCHANGE = 0x007E;
@@ -223,6 +181,7 @@ namespace NextValleyDock
             if (_settingsWindow == null)
             {
                 _settingsWindow = new Views.SettingsWindow();
+                WinUIEx.WindowExtensions.SetIcon(_settingsWindow, "Assets/Project-Valley-Logo.png");
                 _settingsWindow.Closed += (s, args) => _settingsWindow = null;
             }
             _settingsWindow.Activate();
@@ -243,6 +202,7 @@ namespace NextValleyDock
             if (_popupMenu != IntPtr.Zero) DestroyMenu(_popupMenu);
             _trayWindow?.Close();
             UnregisterAppBar();
+            Helpers.TaskbarManager.Show();
         }
 
         private void SetupDock()
@@ -301,6 +261,19 @@ namespace NextValleyDock
             InsertMenuW(_popupMenu, 1, MF_BYPOSITION | MF_SEPARATOR, UIntPtr.Zero, "");
             InsertMenuW(_popupMenu, 2, MF_BYPOSITION | MF_STRING, (UIntPtr)IDM_EXIT, "Exit");
 
+            // Load tray icon from branding assets
+            IntPtr hIcon = System.Drawing.SystemIcons.Application.Handle;
+            try
+            {
+                string iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Project-Valley-Logo.png");
+                if (System.IO.File.Exists(iconPath))
+                {
+                    using var bmp = new System.Drawing.Bitmap(iconPath);
+                    hIcon = bmp.GetHicon();
+                }
+            }
+            catch { }
+
             // Register Shell_NotifyIcon with tray window's HWND as callback
             var nid = new NOTIFYICONDATA
             {
@@ -309,7 +282,7 @@ namespace NextValleyDock
                 uID = 1,
                 uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP,
                 uCallbackMessage = WM_APP_TRAY,
-                hIcon = System.Drawing.SystemIcons.Application.Handle,
+                hIcon = hIcon,
                 szTip = "Project Valley"
             };
             Shell_NotifyIcon(NIM_ADD, ref nid);
@@ -331,44 +304,53 @@ namespace NextValleyDock
             int dockHeight = (int)Math.Ceiling(logicalHeight * scale);
             int screenWidth = displayArea.OuterBounds.Width;
 
-            // Register as AppBar and resize window
-            RegisterAppBar(hWnd, screenWidth, dockHeight, appWindow);
+            // Register as AppBar and resize window IF enabled
+            if (Helpers.SettingsManager.ShowTopPanel)
+            {
+                RegisterAppBar(hWnd, screenWidth, dockHeight, appWindow);
+            }
+            else
+            {
+                // Resize anyway so if the user shows it manually via WinUIEx tools it has a size, 
+                // but don't call RegisterAppBar which moves the Work Area.
+                appWindow.MoveAndResize(new RectInt32(0, 0, screenWidth, dockHeight));
+            }
         }
 
         private void RegisterAppBar(IntPtr hWnd, int width, int height, Microsoft.UI.Windowing.AppWindow appWindow)
         {
-            APPBARDATA abd = new APPBARDATA();
-            abd.cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA));
+            NativeMethods.APPBARDATA abd = new NativeMethods.APPBARDATA();
+            abd.cbSize = Marshal.SizeOf(typeof(NativeMethods.APPBARDATA));
             abd.hWnd = hWnd;
 
             // Register
-            SHAppBarMessage(ABM_NEW, ref abd);
+            NativeMethods.SHAppBarMessage(NativeMethods.ABM_NEW, ref abd);
 
             // Set Position
-            abd.uEdge = ABE_TOP;
-            abd.rc.Left = 0;
-            abd.rc.Top = 0;
-            abd.rc.Right = width;
-            abd.rc.Bottom = height;
+            abd.uEdge = NativeMethods.ABE_TOP;
+            abd.rc.left = 0;
+            abd.rc.top = 0;
+            abd.rc.right = width;
+            abd.rc.bottom = height;
 
-            SHAppBarMessage(ABM_QUERYPOS, ref abd);
+            NativeMethods.SHAppBarMessage(NativeMethods.ABM_QUERYPOS, ref abd);
 
             // Ensure height remains exactly what we requested
-            abd.rc.Bottom = abd.rc.Top + height;
+            abd.rc.bottom = abd.rc.top + height;
 
-            SHAppBarMessage(ABM_SETPOS, ref abd);
+            NativeMethods.SHAppBarMessage(NativeMethods.ABM_SETPOS, ref abd);
 
             // Accurately position based on Windows Shell's accepted rectangle
-            appWindow.MoveAndResize(new RectInt32(abd.rc.Left, abd.rc.Top, abd.rc.Right - abd.rc.Left, abd.rc.Bottom - abd.rc.Top));
+            appWindow.MoveAndResize(new RectInt32(abd.rc.left, abd.rc.top, abd.rc.right - abd.rc.left, abd.rc.bottom - abd.rc.top));
         }
 
         private void UnregisterAppBar()
         {
             IntPtr hWnd = Microsoft.UI.Win32Interop.GetWindowFromWindowId(this.AppWindow.Id);
-            APPBARDATA abd = new APPBARDATA();
-            abd.cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA));
+            NativeMethods.APPBARDATA abd = new NativeMethods.APPBARDATA();
+            abd.cbSize = Marshal.SizeOf(typeof(NativeMethods.APPBARDATA));
             abd.hWnd = hWnd;
-            SHAppBarMessage(ABM_REMOVE, ref abd);
+            NativeMethods.SHAppBarMessage(NativeMethods.ABM_REMOVE, ref abd);
         }
 
         private IntPtr _lastForegroundHwnd = IntPtr.Zero;

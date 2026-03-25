@@ -18,13 +18,11 @@ namespace NextValleyDock.Views
 
             CheckStartupStatus();
 
-            try
-            {
-                using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\NextValleyDock");
-                if (key?.GetValue("ShowBatteryPercentage") is int val)
-                    ShowBatteryPercentageToggle.IsOn = val == 1;
-            }
-            catch { }
+            // Load settings via SettingsManager
+            ShowBatteryPercentageToggle.IsOn = Helpers.SettingsManager.ShowBatteryPercentage;
+            ShowTopPanelToggle.IsOn = Helpers.SettingsManager.ShowTopPanel;
+            ShowDockToggle.IsOn = Helpers.SettingsManager.ShowDock;
+            HideTaskbarToggle.IsOn = Helpers.SettingsManager.HideTaskbar;
         }
 
         private const string RunKey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
@@ -64,12 +62,22 @@ namespace NextValleyDock.Views
 
         private void ToggleBatteryPercentage_Toggled(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("SOFTWARE\\NextValleyDock");
-                key.SetValue("ShowBatteryPercentage", ShowBatteryPercentageToggle.IsOn ? 1 : 0);
-            }
-            catch { }
+            Helpers.SettingsManager.ShowBatteryPercentage = ShowBatteryPercentageToggle.IsOn;
+        }
+
+        private void ToggleShowTopPanel_Toggled(object sender, RoutedEventArgs e)
+        {
+            Helpers.SettingsManager.ShowTopPanel = ShowTopPanelToggle.IsOn;
+        }
+
+        private void ToggleShowDock_Toggled(object sender, RoutedEventArgs e)
+        {
+            Helpers.SettingsManager.ShowDock = ShowDockToggle.IsOn;
+        }
+
+        private void ToggleHideTaskbar_Toggled(object sender, RoutedEventArgs e)
+        {
+            Helpers.SettingsManager.HideTaskbar = HideTaskbarToggle.IsOn;
         }
 
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)

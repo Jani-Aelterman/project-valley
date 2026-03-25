@@ -46,6 +46,9 @@
         <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
         <Content Include="Assets\StoreLogo.png" />
         <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+        <Content Include="Assets\Project-Valley-Logo.png" />
+        <Content Include="Assets\Windows-11-Logo.png" />
+        <Content Include="Assets\Windows11Logo.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -63,6 +66,7 @@
         <PackageReference Include="H.NotifyIcon.WinUI" Version="2.4.1" />
         <PackageReference Include="NAudio.Core" Version="2.3.0" />
         <PackageReference Include="NAudio.Wasapi" Version="2.3.0" />
+        <PackageReference Include="System.Drawing.Common" Version="10.0.5" />
         <PackageReference Include="WinUIEx" Version="2.4.0" />
 
         <Manifest Include="$(ApplicationManifest)" />
