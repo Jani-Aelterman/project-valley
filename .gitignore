@@ -488,3 +488,5 @@ $RECYCLE.BIN/
 logs/
 
 AIgnore/
+weather*.json
+weather_error.txt

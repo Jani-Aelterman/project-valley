@@ -11,11 +11,11 @@
 
     <Grid Background="Transparent">
         <Border x:Name="PillRoot"
-                CornerRadius="12" 
+                CornerRadius="0" 
                 Background="Transparent" 
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                BorderThickness="1" 
-                Padding="12,0"
+                BorderThickness="0" 
+                Padding="0"
                 Height="64"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Center">
@@ -83,12 +83,38 @@
                                     BorderThickness="0"
                                     CornerRadius="12"
                                     ToolTipService.ToolTip="{x:Bind Title, Mode=OneWay}">
+                                <Button.ContextFlyout>
+                                    <MenuFlyout Opened="MenuFlyout_Opened" Closed="MenuFlyout_Closed">
+                                        <MenuFlyoutItem Text="Pin to Taskbar" 
+                                                        Click="PinItem_Click" 
+                                                        Visibility="{x:Bind helpers:Converters.IsNotPinnedToVisibility(IsPinned), Mode=OneWay}">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE718;"/>
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Text="Unpin from Taskbar" 
+                                                        Click="UnpinItem_Click" 
+                                                        Visibility="{x:Bind helpers:Converters.IsPinnedToVisibility(IsPinned), Mode=OneWay}">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE77A;"/>
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                    </MenuFlyout>
+                                </Button.ContextFlyout>
                                 <Grid Width="56" Height="56">
                                     <Image Source="{x:Bind Icon, Mode=OneWay}" 
                                            Stretch="Uniform" 
-                                           Width="44" Height="44" 
+                                           Width="38" Height="38" 
                                            VerticalAlignment="Center" 
-                                           HorizontalAlignment="Center"/>
+                                           HorizontalAlignment="Center"
+                                           Opacity="{x:Bind helpers:Converters.IsRunningToOpacity(IsRunning), Mode=OneWay}"/>
+                                    
+                                    <Ellipse Width="6" Height="2" 
+                                             Fill="{ThemeResource SystemAccentColorLight2}" 
+                                             VerticalAlignment="Bottom" 
+                                             HorizontalAlignment="Center"
+                                             Margin="0,0,0,6"
+                                             Visibility="{x:Bind helpers:Converters.IsRunningToVisibility(IsRunning), Mode=OneWay}"/>
                                 </Grid>
                             </Button>
                         </DataTemplate>

@@ -23,6 +23,9 @@ namespace NextValleyDock.Views
             ShowTopPanelToggle.IsOn = Helpers.SettingsManager.ShowTopPanel;
             ShowDockToggle.IsOn = Helpers.SettingsManager.ShowDock;
             HideTaskbarToggle.IsOn = Helpers.SettingsManager.HideTaskbar;
+
+            LatTextBox.Text = Helpers.SettingsManager.Latitude;
+            LonTextBox.Text = Helpers.SettingsManager.Longitude;
         }
 
         private const string RunKey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
@@ -88,6 +91,12 @@ namespace NextValleyDock.Views
             PanelPage.Visibility        = tag == "Panel"          ? Visibility.Visible : Visibility.Collapsed;
             DockPage.Visibility          = tag == "Dock"            ? Visibility.Visible : Visibility.Collapsed;
             DynamicDockPage.Visibility = tag == "DynamicDock" ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void Location_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Helpers.SettingsManager.Latitude = LatTextBox.Text;
+            Helpers.SettingsManager.Longitude = LonTextBox.Text;
         }
     }
 }

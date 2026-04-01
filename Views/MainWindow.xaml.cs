@@ -114,6 +114,7 @@ namespace NextValleyDock
             SetupClock();
             SetupForegroundAppTracker();
             SetupStatusIcons();
+            SetupWeather();
 
             // Use custom Desktop Acrylic that stays active even when unfocused (like the Taskbar)
             this.SystemBackdrop = new AlwaysActiveDesktopAcrylic();
@@ -537,6 +538,120 @@ namespace NextValleyDock
 
         [DllImport("kernel32.dll")]
         private static extern bool GetSystemPowerStatus(out SYSTEM_POWER_STATUS sps);
+
+        private DispatcherTimer? _weatherTimer;
+
+        private void SetupWeather()
+        {
+            var dispatcher = this.DispatcherQueue;
+            // Initial fetch
+            System.Threading.Tasks.Task.Run(() => UpdateWeatherAsync(dispatcher));
+
+            // Update every 30 minutes
+            _weatherTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(30) };
+            _weatherTimer.Tick += (s, e) => System.Threading.Tasks.Task.Run(() => UpdateWeatherAsync(dispatcher));
+            _weatherTimer.Start();
+        }
+
+        private async System.Threading.Tasks.Task UpdateWeatherAsync(Microsoft.UI.Dispatching.DispatcherQueue dispatcher)
+        {
+            try
+            {
+                using var client = new System.Net.Http.HttpClient();
+                // Add an explicit user agent to avoid geoblocking or being flagged as a generic bot scraper.
+                client.DefaultRequestHeaders.Add("User-Agent", "NextValleyDock/1.0");
+
+                string latitude = Helpers.SettingsManager.Latitude;
+                string longitude = Helpers.SettingsManager.Longitude;
+
+                // Auto-detect the location based on IP if the user hasn't set one up yet.
+                if (string.IsNullOrWhiteSpace(latitude) || string.IsNullOrWhiteSpace(longitude))
+                {
+                    try
+                    {
+                        var geoResponse = await client.GetAsync("https://get.geojs.io/v1/ip/geo.json");
+                        if (geoResponse.IsSuccessStatusCode)
+                        {
+                            var geoJsonString = await geoResponse.Content.ReadAsStringAsync();
+                            var geoJson = System.Text.Json.JsonDocument.Parse(geoJsonString);
+                            latitude = geoJson.RootElement.GetProperty("latitude").GetString() ?? "50.8503";
+                            longitude = geoJson.RootElement.GetProperty("longitude").GetString() ?? "4.3517";
+
+                            // Cache the detected values in Settings so we only do this once
+                            Helpers.SettingsManager.Latitude = latitude;
+                            Helpers.SettingsManager.Longitude = longitude;
+                        }
+                        else
+                        {
+                            latitude = "50.8503"; // Failover coordinates
+                            longitude = "4.3517";
+                        }
+                    }
+                    catch
+                    {
+                        latitude = "50.8503";
+                        longitude = "4.3517";
+                    }
+                }
+
+                // InvariantCulture conversion to string just to be safe if a comma was stored
+                latitude = latitude.Replace(",", ".");
+                longitude = longitude.Replace(",", ".");
+
+                var url = $"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current_weather=true";
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var json = System.Text.Json.JsonDocument.Parse(jsonString);
+
+                if (json.RootElement.TryGetProperty("current_weather", out var currentWeather))
+                {
+                    double temp = currentWeather.GetProperty("temperature").GetDouble();
+                    int weatherCode = currentWeather.GetProperty("weathercode").GetInt32();
+
+                    var (icon, desc, color) = GetWeatherDisplayInfo(weatherCode);
+
+                    dispatcher.TryEnqueue(() =>
+                    {
+                        WeatherTempTextBlock.Text = $"{Math.Round(temp)}°C";
+                        WeatherDescTextBlock.Text = desc;
+                        WeatherIcon.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(icon));
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error fetching weather: {ex.Message}");
+                Console.WriteLine($"Error fetching weather: {ex.Message}");
+                System.IO.File.WriteAllText("weather_error.txt", ex.ToString());
+                
+                dispatcher?.TryEnqueue(() =>
+                {
+                    WeatherDescTextBlock.Text = "Error";
+                });
+            }
+        }
+
+        private (string icon, string description, Windows.UI.Color color) GetWeatherDisplayInfo(int wmoc)
+        {
+            // WMO Weather interpretation codes (WW) mapped to Bing Weather icons
+            return wmoc switch
+            {
+                0 => ("ms-appx:///Assets/WeatherIcons/Sunny.png", "Sunny", Windows.UI.Color.FromArgb(255, 255, 165, 0)), // Clear sky
+                1 => ("ms-appx:///Assets/WeatherIcons/DayPartlyCloudy.png", "Mostly Sunny", Windows.UI.Color.FromArgb(255, 255, 165, 0)),
+                2 => ("ms-appx:///Assets/WeatherIcons/DayPartlyCloudy.png", "Partly Cloudy", Windows.UI.Color.FromArgb(255, 200, 200, 200)),
+                3 => ("ms-appx:///Assets/WeatherIcons/Cloudy.png", "Overcast", Windows.UI.Color.FromArgb(255, 150, 150, 150)),
+                45 or 48 => ("ms-appx:///Assets/WeatherIcons/Fog.png", "Fog", Windows.UI.Color.FromArgb(255, 180, 180, 180)),
+                51 or 53 or 55 or 56 or 57 => ("ms-appx:///Assets/WeatherIcons/Rain.png", "Drizzle", Windows.UI.Color.FromArgb(255, 150, 150, 150)),
+                61 or 63 or 65 or 66 or 67 => ("ms-appx:///Assets/WeatherIcons/Rain.png", "Rain", Windows.UI.Color.FromArgb(255, 0, 120, 215)),
+                71 or 73 or 75 or 77 => ("ms-appx:///Assets/WeatherIcons/LightSnow.png", "Snow", Windows.UI.Color.FromArgb(255, 255, 255, 255)),
+                80 or 81 or 82 => ("ms-appx:///Assets/WeatherIcons/DayRainShowers.png", "Showers", Windows.UI.Color.FromArgb(255, 0, 120, 215)),
+                85 or 86 => ("ms-appx:///Assets/WeatherIcons/DaySnowShowers.png", "Snow Showers", Windows.UI.Color.FromArgb(255, 255, 255, 255)),
+                95 or 96 or 99 => ("ms-appx:///Assets/WeatherIcons/Thunderstorm.png", "Thunderstorm", Windows.UI.Color.FromArgb(255, 100, 100, 150)),
+                _ => ("ms-appx:///Assets/WeatherIcons/Sunny.png", "Unknown", Windows.UI.Color.FromArgb(255, 150, 150, 150))
+            };
+        }
 
         private DispatcherTimer? _statusTimer;
 

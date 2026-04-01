@@ -86,7 +86,7 @@ namespace NextValleyDock.Views
                 // Hysteresis: Don't change state too fast (500ms cooldown)
                 if ((DateTime.Now - _lastStateChange).TotalMilliseconds < 500) return;
 
-                // Show if: Mouse is near bottom OR mouse is over dock OR nothing is overlapping it
+                // Show if: Mouse is near bottom OR mouse is over dock OR desktop is clear (!isOverlapped)
                 if (nearBottom || overDock || !isOverlapped)
                 {
                     if (!_isHovered)
@@ -151,17 +151,7 @@ namespace NextValleyDock.Views
 
         private void ShowDock()
         {
-            UpdatePosition();
-            var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(this.AppWindow.Id, Microsoft.UI.Windowing.DisplayAreaFallback.Primary);
-            int screenHeight = displayArea.OuterBounds.Height;
-            int screenWidth = displayArea.OuterBounds.Width;
-            int dockWidth = this.AppWindow.Size.Width;
-            int dockHeight = this.AppWindow.Size.Height;
-
-            int x = (screenWidth - dockWidth) / 2;
-            int y = screenHeight - dockHeight - 32; 
-            
-            this.AppWindow.Move(new PointInt32(x, y));
+            UpdatePosition(); // UpdatePosition now handles the actual Move
             
             // Force Topmost again
             IntPtr hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
@@ -293,22 +283,36 @@ namespace NextValleyDock.Views
         {
             if (sender is FrameworkElement element && element.DataContext is WindowInfo info)
             {
-                IntPtr hWnd = info.Handle;
-                IntPtr foregroundHwnd = GetForegroundWindow();
+                if (info.IsRunning && info.Handle != IntPtr.Zero)
+                {
+                    IntPtr hWnd = info.Handle;
+                    IntPtr foregroundHwnd = GetForegroundWindow();
 
-                if (hWnd == foregroundHwnd)
-                {
-                    // If it's the foreground window, minimize it
-                    ShowWindow(hWnd, SW_MINIMIZE);
-                }
-                else
-                {
-                    // If it's not the foreground window or it's minimized, restore it
-                    if (IsIconic(hWnd))
+                    if (hWnd == foregroundHwnd)
                     {
-                        ShowWindow(hWnd, SW_RESTORE);
+                        ShowWindow(hWnd, SW_MINIMIZE);
                     }
-                    SetForegroundWindow(hWnd);
+                    else
+                    {
+                        if (IsIconic(hWnd))
+                        {
+                            ShowWindow(hWnd, SW_RESTORE);
+                        }
+                        SetForegroundWindow(hWnd);
+                    }
+                }
+                else if (!string.IsNullOrEmpty(info.ExePath))
+                {
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo 
+                        { 
+                            FileName = info.ExePath, 
+                            UseShellExecute = true,
+                            WorkingDirectory = System.IO.Path.GetDirectoryName(info.ExePath)
+                        });
+                    }
+                    catch { }
                 }
             }
         }
@@ -417,7 +421,7 @@ namespace NextValleyDock.Views
             
             this.AppWindow.Resize(new Windows.Graphics.SizeInt32(physicalWidth, physicalHeight));
             
-            // Position exactly at the bottom with a 12px physical gap from screen edge
+            // Position exactly at the bottom with a 16px logical gap from screen edge
             int x = (screenWidth - physicalWidth) / 2;
             int y = screenHeight - physicalHeight - (int)(16 * scaleFactor); 
             
@@ -427,7 +431,17 @@ namespace NextValleyDock.Views
                 right = x + physicalWidth, 
                 bottom = y + physicalHeight
             };
-            this.AppWindow.Move(new Windows.Graphics.PointInt32(x, y));
+
+            // Only move if we are supposed to be visible (OR if we are explicitly initializing)
+            if (_isHovered || _lastStateChange == DateTime.MinValue)
+            {
+                this.AppWindow.Move(new Windows.Graphics.PointInt32(x, y));
+            }
+            else
+            {
+                // Maintain hidden position
+                this.AppWindow.Move(new Windows.Graphics.PointInt32(x, screenHeight + 100));
+            }
         }
 
         private double GetScaleFactor()
@@ -441,5 +455,20 @@ namespace NextValleyDock.Views
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern uint GetDpiForWindow(IntPtr hwnd);
+        private void PinItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement element && element.DataContext is WindowInfo info)
+            {
+                RunningAppsService.Instance.PinToTaskbar(info);
+            }
+        }
+
+        private void UnpinItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement element && element.DataContext is WindowInfo info)
+            {
+                RunningAppsService.Instance.UnpinFromTaskbar(info);
+            }
+        }
     }
 }

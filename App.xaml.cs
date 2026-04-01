@@ -30,6 +30,8 @@ namespace NextValleyDock
             }
         }
 
+private bool _isStartup = true;
+
         private void ApplyDockSettings()
         {
             if (m_dockWindow == null) return;
@@ -37,17 +39,20 @@ namespace NextValleyDock
             if (Helpers.SettingsManager.ShowDock)
             {
                 m_dockWindow.Activate();
-                
+
                 if (Helpers.SettingsManager.HideTaskbar)
                     Helpers.TaskbarManager.Hide();
-                else
+                else if (!_isStartup)
                     Helpers.TaskbarManager.Show();
             }
             else
             {
                 m_dockWindow.AppWindow.Hide();
-                Helpers.TaskbarManager.Show();
+                if (!_isStartup)
+                    Helpers.TaskbarManager.Show();
             }
+
+            _isStartup = false;
         }
 
         private Window? m_window;

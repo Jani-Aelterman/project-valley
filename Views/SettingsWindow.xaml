@@ -147,6 +147,33 @@
                                           OnContent="" OffContent="" Toggled="ToggleBatteryPercentage_Toggled"/>
                         </Grid>
                     </Border>
+                    
+                    <TextBlock Text="Weather" FontSize="13" FontWeight="SemiBold" Margin="2,8,0,6"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                    <Border CornerRadius="8"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1" Padding="16,14" Margin="0,2">
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="90"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="6" Background="#FFB900">
+                                <FontIcon Glyph="&#xE81D;" Foreground="White" FontSize="16"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Custom coordinates" FontSize="14"/>
+                                <TextBlock Text="Location for weather (leave empty for auto IP detection)"
+                                           FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                            <TextBox x:Name="LatTextBox" Grid.Column="2" PlaceholderText="Latitude" TextChanged="Location_TextChanged" Margin="0,0,8,0" VerticalAlignment="Center" />
+                            <TextBox x:Name="LonTextBox" Grid.Column="3" PlaceholderText="Longitude" TextChanged="Location_TextChanged" VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
 
                     <Border CornerRadius="8"
                             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
