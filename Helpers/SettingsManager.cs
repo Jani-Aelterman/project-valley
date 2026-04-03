@@ -55,6 +55,29 @@ namespace NextValleyDock.Helpers
             catch { }
         }
 
+        public static int GetInt(string name, int defaultValue = 0)
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(RegistryPath);
+                if (key?.GetValue(name) is int val)
+                    return val;
+            }
+            catch { }
+            return defaultValue;
+        }
+
+        public static void SetInt(string name, int value)
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.CreateSubKey(RegistryPath);
+                key.SetValue(name, value, RegistryValueKind.DWord);
+                SettingChanged?.Invoke(null, name);
+            }
+            catch { }
+        }
+
         // Specific properties for convenience
         public static bool ShowBatteryPercentage
         {
@@ -90,6 +113,12 @@ namespace NextValleyDock.Helpers
         {
             get => GetString("Longitude", ""); // Empty means auto-detect
             set => SetString("Longitude", value);
+        }
+
+        public static int PanelHeight
+        {
+            get => GetInt("PanelHeight", 32); // Default is 32px
+            set => SetInt("PanelHeight", value);
         }
     }
 }

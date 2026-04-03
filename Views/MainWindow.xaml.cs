@@ -126,7 +126,7 @@ namespace NextValleyDock
 
         private void OnSettingChanged(object? sender, string settingName)
         {
-            if (settingName == "ShowTopPanel")
+            if (settingName == "ShowTopPanel" || settingName == "PanelHeight")
             {
                 this.DispatcherQueue.TryEnqueue(() => ApplyPanelSettings());
             }
@@ -301,10 +301,9 @@ namespace NextValleyDock
             double scale = dpi / 96.0;
             var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(appWindow.Id, Microsoft.UI.Windowing.DisplayAreaFallback.Primary);
 
-            double logicalHeight = 32; 
-            int dockHeight = (int)Math.Ceiling(logicalHeight * scale);
+            double logicalHeight = Helpers.SettingsManager.PanelHeight;
+            if (logicalHeight < 32 || logicalHeight > 128) logicalHeight = 32;            int dockHeight = (int)Math.Ceiling(logicalHeight * scale);
             int screenWidth = displayArea.OuterBounds.Width;
-
             // Register as AppBar and resize window IF enabled
             if (Helpers.SettingsManager.ShowTopPanel)
             {
@@ -821,6 +820,28 @@ namespace NextValleyDock
             TimeTextBlock.Text = DateTime.Now.ToString("HH:mm");
             DateTextBlock.Text = DateTime.Now.ToString("ddd d MMMM"); 
 
+        }
+
+        private void TaskManagerMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo("taskmgr") { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to launch task manager: {ex.Message}");
+            }
+        }
+
+        private void SettingsMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            OpenSettings();
+        }
+
+        private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Exit();
         }
     }
 }

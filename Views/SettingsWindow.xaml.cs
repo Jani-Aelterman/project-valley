@@ -26,6 +26,8 @@ namespace NextValleyDock.Views
 
             LatTextBox.Text = Helpers.SettingsManager.Latitude;
             LonTextBox.Text = Helpers.SettingsManager.Longitude;
+            
+            PanelHeightBox.Value = Helpers.SettingsManager.PanelHeight;
         }
 
         private const string RunKey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
@@ -97,6 +99,12 @@ namespace NextValleyDock.Views
         {
             Helpers.SettingsManager.Latitude = LatTextBox.Text;
             Helpers.SettingsManager.Longitude = LonTextBox.Text;
+        }
+
+        private void PanelHeightBox_ValueChanged(Microsoft.UI.Xaml.Controls.NumberBox sender, Microsoft.UI.Xaml.Controls.NumberBoxValueChangedEventArgs args)
+        {
+            if (double.IsNaN(sender.Value)) return;
+            Helpers.SettingsManager.PanelHeight = (int)sender.Value;
         }
     }
 }
