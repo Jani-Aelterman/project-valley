@@ -27,43 +27,43 @@
                         Width="48" Height="48" 
                         Padding="0" Margin="4,0,0,0"
                         Background="Transparent" BorderThickness="0"
-                        ToolTipService.ToolTip="Start"
+                        x:Uid="StartButton"
                         CornerRadius="12">
                     <Button.ContextFlyout>
                         <MenuFlyout Opened="MenuFlyout_Opened" Closed="MenuFlyout_Closed">
-                            <MenuFlyoutItem Text="Installed apps" Click="PowerMenu_Click" Tag="ms-settings:appsfeatures"/>
-                            <MenuFlyoutItem Text="Mobility Center" Click="PowerMenu_Click" Tag="mblctr"/>
-                            <MenuFlyoutItem Text="Power Options" Click="PowerMenu_Click" Tag="ms-settings:powersleep"/>
-                            <MenuFlyoutItem Text="Event Viewer" Click="PowerMenu_Click" Tag="eventvwr"/>
-                            <MenuFlyoutItem Text="System" Click="PowerMenu_Click" Tag="ms-settings:about"/>
-                            <MenuFlyoutItem Text="Device Manager" Click="PowerMenu_Click" Tag="devmgmt.msc"/>
-                            <MenuFlyoutItem Text="Network Connections" Click="PowerMenu_Click" Tag="ms-settings:network"/>
-                            <MenuFlyoutItem Text="Disk Management" Click="PowerMenu_Click" Tag="diskmgmt.msc"/>
-                            <MenuFlyoutItem Text="Computer Management" Click="PowerMenu_Click" Tag="compmgmt.msc"/>
+                            <MenuFlyoutItem x:Uid="MenuInstalledApps" Click="PowerMenu_Click" Tag="ms-settings:appsfeatures"/>
+                            <MenuFlyoutItem x:Uid="MenuMobilityCenter" Click="PowerMenu_Click" Tag="mblctr"/>
+                            <MenuFlyoutItem x:Uid="MenuPowerOptions" Click="PowerMenu_Click" Tag="ms-settings:powersleep"/>
+                            <MenuFlyoutItem x:Uid="MenuEventViewer" Click="PowerMenu_Click" Tag="eventvwr"/>
+                            <MenuFlyoutItem x:Uid="MenuSystem" Click="PowerMenu_Click" Tag="ms-settings:about"/>
+                            <MenuFlyoutItem x:Uid="MenuDeviceManager" Click="PowerMenu_Click" Tag="devmgmt.msc"/>
+                            <MenuFlyoutItem x:Uid="MenuNetworkConnections" Click="PowerMenu_Click" Tag="ms-settings:network"/>
+                            <MenuFlyoutItem x:Uid="MenuDiskManagement" Click="PowerMenu_Click" Tag="diskmgmt.msc"/>
+                            <MenuFlyoutItem x:Uid="MenuComputerManagement" Click="PowerMenu_Click" Tag="compmgmt.msc"/>
                             <MenuFlyoutSeparator/>
-                            <MenuFlyoutItem Text="Terminal" Click="PowerMenu_Click" Tag="wt"/>
-                            <MenuFlyoutItem Text="Terminal (Admin)" Click="PowerMenu_Click" Tag="wt-admin"/>
+                            <MenuFlyoutItem x:Uid="MenuTerminal" Click="PowerMenu_Click" Tag="wt"/>
+                            <MenuFlyoutItem x:Uid="MenuTerminalAdmin" Click="PowerMenu_Click" Tag="wt-admin"/>
                             <MenuFlyoutSeparator/>
-                            <MenuFlyoutItem Text="Task Manager" Click="PowerMenu_Click" Tag="taskmgr"/>
-                            <MenuFlyoutItem Text="Settings" Click="PowerMenu_Click" Tag="ms-settings:home"/>
-                            <MenuFlyoutItem Text="File Explorer" Click="PowerMenu_Click" Tag="explorer"/>
-                            <MenuFlyoutItem Text="Search" Click="PowerMenu_Click" Tag="ms-search:"/>
-                            <MenuFlyoutItem Text="Run" Click="PowerMenu_Click" Tag="run"/>
+                            <MenuFlyoutItem x:Uid="MenuTaskManager" Click="PowerMenu_Click" Tag="taskmgr"/>
+                            <MenuFlyoutItem x:Uid="MenuSettings" Click="PowerMenu_Click" Tag="ms-settings:home"/>
+                            <MenuFlyoutItem x:Uid="MenuFileExplorer" Click="PowerMenu_Click" Tag="explorer"/>
+                            <MenuFlyoutItem x:Uid="MenuSearch" Click="PowerMenu_Click" Tag="ms-search:"/>
+                            <MenuFlyoutItem x:Uid="MenuRun" Click="PowerMenu_Click" Tag="run"/>
                             <MenuFlyoutSeparator/>
-                            <MenuFlyoutSubItem Text="Shut down or sign out">
-                                <MenuFlyoutItem Text="Sign out" Click="PowerMenu_Click" Tag="logoff"/>
-                                <MenuFlyoutItem Text="Sleep" Click="PowerMenu_Click" Tag="sleep"/>
-                                <MenuFlyoutItem Text="Shut down" Click="PowerMenu_Click" Tag="shutdown"/>
-                                <MenuFlyoutItem Text="Restart" Click="PowerMenu_Click" Tag="restart"/>
+                            <MenuFlyoutSubItem x:Uid="MenuShutDownOrSignOut">
+                                <MenuFlyoutItem x:Uid="MenuSignOut" Click="PowerMenu_Click" Tag="logoff"/>
+                                <MenuFlyoutItem x:Uid="MenuSleep" Click="PowerMenu_Click" Tag="sleep"/>
+                                <MenuFlyoutItem x:Uid="MenuShutDown" Click="PowerMenu_Click" Tag="shutdown"/>
+                                <MenuFlyoutItem x:Uid="MenuRestart" Click="PowerMenu_Click" Tag="restart"/>
                             </MenuFlyoutSubItem>
-                            <MenuFlyoutItem Text="Desktop" Click="PowerMenu_Click" Tag="desktop"/>
+                            <MenuFlyoutItem x:Uid="MenuDesktop" Click="PowerMenu_Click" Tag="desktop"/>
                         </MenuFlyout>
                     </Button.ContextFlyout>
-                    <Border CornerRadius="0" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Border.Background>
-                            <ImageBrush ImageSource="ms-appx:///Assets/Windows11Logo.png" Stretch="UniformToFill"/>
-                        </Border.Background>
-                    </Border>
+                    <BitmapIcon UriSource="ms-appx:///Assets/Windows11Logo.png" 
+                                ShowAsMonochrome="True" 
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}" 
+                                Width="28" Height="28" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Button>
 
                 <!-- Separator -->
@@ -85,14 +85,14 @@
                                     ToolTipService.ToolTip="{x:Bind Title, Mode=OneWay}">
                                 <Button.ContextFlyout>
                                     <MenuFlyout Opened="MenuFlyout_Opened" Closed="MenuFlyout_Closed">
-                                        <MenuFlyoutItem Text="Pin to Taskbar" 
+                                        <MenuFlyoutItem x:Uid="MenuPinToTaskbar" 
                                                         Click="PinItem_Click" 
                                                         Visibility="{x:Bind helpers:Converters.IsNotPinnedToVisibility(IsPinned), Mode=OneWay}">
                                             <MenuFlyoutItem.Icon>
                                                 <FontIcon Glyph="&#xE718;"/>
                                             </MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
-                                        <MenuFlyoutItem Text="Unpin from Taskbar" 
+                                        <MenuFlyoutItem x:Uid="MenuUnpinFromTaskbar" 
                                                         Click="UnpinItem_Click" 
                                                         Visibility="{x:Bind helpers:Converters.IsPinnedToVisibility(IsPinned), Mode=OneWay}">
                                             <MenuFlyoutItem.Icon>

@@ -120,5 +120,11 @@ namespace NextValleyDock.Helpers
             get => GetInt("PanelHeight", 32); // Default is 32px
             set => SetInt("PanelHeight", value);
         }
+
+        public static string Language
+        {
+            get => GetString("Language", "Default"); // "Default", "en", "nl"
+            set => SetString("Language", value);
+        }
     }
 }

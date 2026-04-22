@@ -580,6 +580,17 @@ namespace NextValleyDock.Helpers
                     return data;
                 }
             } catch { }
+
+            try
+            {
+                string fallbackPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Assets", "Project-Valley-Logo-Rounded.png");
+                if (File.Exists(fallbackPath))
+                {
+                    return File.ReadAllBytes(fallbackPath);
+                }
+            }
+            catch { }
+
             return null;
         }
 

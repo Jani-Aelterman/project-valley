@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  
+  <data name="MenuInstalledApps.Text" xml:space="preserve"><value>Installed apps</value></data>
+  <data name="MenuMobilityCenter.Text" xml:space="preserve"><value>Mobility Center</value></data>
+  <data name="MenuPowerOptions.Text" xml:space="preserve"><value>Power Options</value></data>
+  <data name="MenuEventViewer.Text" xml:space="preserve"><value>Event Viewer</value></data>
+  <data name="MenuSystem.Text" xml:space="preserve"><value>System</value></data>
+  <data name="MenuDeviceManager.Text" xml:space="preserve"><value>Device Manager</value></data>
+  <data name="MenuNetworkConnections.Text" xml:space="preserve"><value>Network Connections</value></data>
+  <data name="MenuDiskManagement.Text" xml:space="preserve"><value>Disk Management</value></data>
+  <data name="MenuComputerManagement.Text" xml:space="preserve"><value>Computer Management</value></data>
+  <data name="MenuTerminal.Text" xml:space="preserve"><value>Terminal</value></data>
+  <data name="MenuTerminalAdmin.Text" xml:space="preserve"><value>Terminal (Admin)</value></data>
+  <data name="MenuTaskManager.Text" xml:space="preserve"><value>Task Manager</value></data>
+  <data name="MenuSettings.Text" xml:space="preserve"><value>Settings</value></data>
+  <data name="MenuFileExplorer.Text" xml:space="preserve"><value>File Explorer</value></data>
+  <data name="MenuSearch.Text" xml:space="preserve"><value>Search</value></data>
+  <data name="MenuRun.Text" xml:space="preserve"><value>Run</value></data>
+  <data name="MenuShutDownOrSignOut.Text" xml:space="preserve"><value>Shut down or sign out</value></data>
+  <data name="MenuSignOut.Text" xml:space="preserve"><value>Sign out</value></data>
+  <data name="MenuSleep.Text" xml:space="preserve"><value>Sleep</value></data>
+  <data name="MenuShutDown.Text" xml:space="preserve"><value>Shut down</value></data>
+  <data name="MenuRestart.Text" xml:space="preserve"><value>Restart</value></data>
+  <data name="MenuDesktop.Text" xml:space="preserve"><value>Desktop</value></data>
+  <data name="MenuPinToTaskbar.Text" xml:space="preserve"><value>Pin to Taskbar</value></data>
+  <data name="MenuUnpinFromTaskbar.Text" xml:space="preserve"><value>Unpin from Taskbar</value></data>
+  <data name="StartButton.ToolTipService.ToolTip" xml:space="preserve"><value>Start</value></data>
+  
+  <data name="SettingsWindow.Title" xml:space="preserve"><value>Next Valley &#x2014; Settings</value></data>
+  <data name="NavGeneral.Content" xml:space="preserve"><value>General</value></data>
+  <data name="NavPanel.Content" xml:space="preserve"><value>Panel</value></data>
+  <data name="NavDock.Content" xml:space="preserve"><value>Dock</value></data>
+  <data name="NavDynamicDock.Content" xml:space="preserve"><value>Dynamic Dock</value></data>
+  <data name="TitleGeneral.Text" xml:space="preserve"><value>General</value></data>
+  <data name="HeaderSystem.Text" xml:space="preserve"><value>System</value></data>
+  <data name="SettingStartWithWindows.Text" xml:space="preserve"><value>Start with Windows</value></data>
+  <data name="SettingStartWithWindowsDesc.Text" xml:space="preserve"><value>Start Project Valley automatically on login</value></data>
+  <data name="SettingLanguage.Text" xml:space="preserve"><value>Language</value></data>
+  <data name="SettingLanguageDesc.Text" xml:space="preserve"><value>Select your preferred application language (Restart required)</value></data>
+  <data name="LangSystem.Content" xml:space="preserve"><value>System Default</value></data>
+  <data name="LangEnglish.Content" xml:space="preserve"><value>English</value></data>
+  <data name="LangDutch.Content" xml:space="preserve"><value>Nederlands</value></data>
+  <data name="HeaderAbout.Text" xml:space="preserve"><value>About</value></data>
+  <data name="SettingAboutPV.Text" xml:space="preserve"><value>Project Valley</value></data>
+  <data name="SettingAboutPVDesc.Text" xml:space="preserve"><value>Version 0.1.0 &#x2014; Early preview</value></data>
+  
+  <data name="TitlePanel.Text" xml:space="preserve"><value>Panel</value></data>
+  <data name="HeaderLook.Text" xml:space="preserve"><value>Look</value></data>
+  <data name="SettingShowTopPanel.Text" xml:space="preserve"><value>Show top panel</value></data>
+  <data name="SettingShowTopPanelDesc.Text" xml:space="preserve"><value>Display the status bar at the top of the screen</value></data>
+  <data name="SettingShowBattery.Text" xml:space="preserve"><value>Show battery percentage</value></data>
+  <data name="SettingShowBatteryDesc.Text" xml:space="preserve"><value>Display the battery percentage next to the icon</value></data>
+  <data name="SettingPanelHeight.Text" xml:space="preserve"><value>Height panel (pixels)</value></data>
+  <data name="SettingPanelHeightDesc.Text" xml:space="preserve"><value>Standard: 32px</value></data>
+  <data name="HeaderWeather.Text" xml:space="preserve"><value>Weather</value></data>
+  <data name="SettingCustomCoords.Text" xml:space="preserve"><value>Custom coordinates</value></data>
+  <data name="SettingCustomCoordsDesc.Text" xml:space="preserve"><value>Location for weather (leave empty for auto IP detection)</value></data>
+  <data name="LatTextBox.PlaceholderText" xml:space="preserve"><value>Latitude</value></data>
+  <data name="LonTextBox.PlaceholderText" xml:space="preserve"><value>Longitude</value></data>
+  <data name="MorePanelSettings.Text" xml:space="preserve"><value>More panel settings coming soon</value></data>
+  
+  <data name="TitleDock.Text" xml:space="preserve"><value>Dock</value></data>
+  <data name="BadgeUnderConstruction.Text" xml:space="preserve"><value>Under construction</value></data>
+  <data name="SettingShowDock.Text" xml:space="preserve"><value>Show dock</value></data>
+  <data name="SettingShowDockDesc.Text" xml:space="preserve"><value>Display the application dock at the bottom of the screen</value></data>
+  <data name="SettingHideTaskbar.Text" xml:space="preserve"><value>Hide Windows taskbar</value></data>
+  <data name="SettingHideTaskbarDesc.Text" xml:space="preserve"><value>Automatically hide the system taskbar when the dock is active</value></data>
+  
+  <data name="TitleDynamicDock.Text" xml:space="preserve"><value>Dynamic Dock</value></data>
+  <data name="DynamicDockDesc1.Text" xml:space="preserve"><value>Advanced features like auto-expanding app groups and system tray</value></data>
+  <data name="DynamicDockDesc2.Text" xml:space="preserve"><value>Coming soon in a future version</value></data>
+  <data name="MainWindow.Title" xml:space="preserve"><value>Next Valley Panel</value></data>
+  <data name="MenuExit.Text" xml:space="preserve"><value>Exit Project Valley</value></data>
+  <data name="TooltipWeather.ToolTipService.ToolTip" xml:space="preserve"><value>Weather</value></data>
+  <data name="SearchBox.PlaceholderText" xml:space="preserve"><value>Type here to search...</value></data>
+  <data name="TooltipQuickSettings.ToolTipService.ToolTip" xml:space="preserve"><value>Quick settings</value></data>
+  <data name="TooltipCalendar.ToolTipService.ToolTip" xml:space="preserve"><value>Calendar and notifications</value></data>
+</root>

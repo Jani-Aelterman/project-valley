@@ -98,11 +98,13 @@ namespace NextValleyDock
         private IntPtr _hWnd = IntPtr.Zero;   // main window
         private IntPtr _trayHwnd = IntPtr.Zero; // hidden tray message window
         private Microsoft.UI.Xaml.Window? _trayWindow;
+        private static string GetAppIconPath() => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Project-Valley-Logo-Rounded.ico");
 
         public MainWindow()
         {
             this.InitializeComponent();
             this.Closed += MainWindow_Closed;
+            WinUIEx.WindowExtensions.SetIcon(this, GetAppIconPath());
 
             this.ExtendsContentIntoTitleBar = true;
 
@@ -182,7 +184,7 @@ namespace NextValleyDock
             if (_settingsWindow == null)
             {
                 _settingsWindow = new Views.SettingsWindow();
-                WinUIEx.WindowExtensions.SetIcon(_settingsWindow, "Assets/Project-Valley-Logo.png");
+                WinUIEx.WindowExtensions.SetIcon(_settingsWindow, GetAppIconPath());
                 _settingsWindow.Closed += (s, args) => _settingsWindow = null;
             }
             _settingsWindow.Activate();
@@ -251,6 +253,7 @@ namespace NextValleyDock
             // Create a hidden tray message window (CmdPal pattern — subclass a separate Window)
             _hWnd = hWnd;
             _trayWindow = new Microsoft.UI.Xaml.Window();
+            WinUIEx.WindowExtensions.SetIcon(this, GetAppIconPath());
             _trayHwnd = Microsoft.UI.Win32Interop.GetWindowFromWindowId(_trayWindow.AppWindow.Id);
 
             // Subclass the tray window's WndProc (separate window is subclassable; main window may not be)
@@ -266,7 +269,7 @@ namespace NextValleyDock
             IntPtr hIcon = System.Drawing.SystemIcons.Application.Handle;
             try
             {
-                string iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Project-Valley-Logo.png");
+                string iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Project-Valley-Logo-Rounded.png");
                 if (System.IO.File.Exists(iconPath))
                 {
                     using var bmp = new System.Drawing.Bitmap(iconPath);
@@ -476,7 +479,7 @@ namespace NextValleyDock
             }
             else
             {
-                ActiveAppIcon.Source = null;
+                ActiveAppIcon.Source = new BitmapImage(new Uri("ms-appx:///Assets/Project-Valley-Logo-Rounded.png"));
             }
         }
 

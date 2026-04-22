@@ -11,6 +11,12 @@ namespace NextValleyDock
     {
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
+            string lang = Helpers.SettingsManager.Language;
+            if (lang != "Default")
+            {
+                Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = lang;
+            }
+
             m_window = new MainWindow();
             WinUIEx.WindowExtensions.SetIcon(m_window, "Assets/Project-Valley-Logo.png");
             m_window.Activate();

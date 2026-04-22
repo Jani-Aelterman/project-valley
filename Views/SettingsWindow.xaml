@@ -6,9 +6,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:winuiex="using:WinUIEx"
     mc:Ignorable="d"
+    x:Uid="SettingsWindow"
     Width="950" Height="660"
-    MinWidth="800" MinHeight="500"
-    Title="Next Valley — Settings">
+    MinWidth="800" MinHeight="500">
 
     <NavigationView x:Name="NavView"
                     PaneDisplayMode="Left"
@@ -18,20 +18,28 @@
                     IsBackButtonVisible="Collapsed">
 
         <NavigationView.MenuItems>
-            <NavigationViewItem x:Name="GeneralItem" Content="General" Tag="General">
+            <NavigationViewItem x:Name="GeneralItem" x:Uid="NavGeneral" Tag="General">
                 <NavigationViewItem.Icon><FontIcon Glyph="&#xE115;"/></NavigationViewItem.Icon>
             </NavigationViewItem>
 
             <NavigationViewItemSeparator/>
 
-            <NavigationViewItem Content="Panel" Tag="Panel">
-                <NavigationViewItem.Icon><FontIcon Glyph="&#xE73F;"/></NavigationViewItem.Icon>
+            <NavigationViewItem x:Uid="NavPanel" Tag="Panel">
+                <NavigationViewItem.Icon>
+                    <PathIcon Data="F0 M 6,1.25 H 18 A 4.75,4.75 0 0 1 22.75,6 V 18 A 4.75,4.75 0 0 1 18,22.75 H 6 A 4.75,4.75 0 0 1 1.25,18 V 6 A 4.75,4.75 0 0 1 6,1.25 Z M 6,2.75 H 18 A 3.25,3.25 0 0 1 21.25,6 V 18 A 3.25,3.25 0 0 1 18,21.25 H 6 A 3.25,3.25 0 0 1 2.75,18 V 6 A 3.25,3.25 0 0 1 6,2.75 Z M 5,3.5 H 19 A 1.5,1.5 0 0 1 20.5,5 V 5 A 1.5,1.5 0 0 1 19,6.5 H 5 A 1.5,1.5 0 0 1 3.5,5 V 5 A 1.5,1.5 0 0 1 5,3.5 Z" />
+                </NavigationViewItem.Icon>
             </NavigationViewItem>
-            <NavigationViewItem Content="Dock" Tag="Dock">
-                <NavigationViewItem.Icon><FontIcon Glyph="&#xE8F1;"/></NavigationViewItem.Icon>
+
+            <NavigationViewItem x:Uid="NavDock" Tag="Dock">
+                <NavigationViewItem.Icon>
+                    <PathIcon Data="F0 M 6,1.25 H 18 A 4.75,4.75 0 0 1 22.75,6 V 18 A 4.75,4.75 0 0 1 18,22.75 H 6 A 4.75,4.75 0 0 1 1.25,18 V 6 A 4.75,4.75 0 0 1 6,1.25 Z M 6,2.75 H 18 A 3.25,3.25 0 0 1 21.25,6 V 18 A 3.25,3.25 0 0 1 18,21.25 H 6 A 3.25,3.25 0 0 1 2.75,18 V 6 A 3.25,3.25 0 0 1 6,2.75 Z M 7.5,17 H 16.5 A 1.5,1.5 0 0 1 18,18.5 V 18.5 A 1.5,1.5 0 0 1 16.5,20 H 7.5 A 1.5,1.5 0 0 1 6,18.5 V 18.5 A 1.5,1.5 0 0 1 7.5,17 Z" />
+                </NavigationViewItem.Icon>
             </NavigationViewItem>
-            <NavigationViewItem Content="Dynamic Dock" Tag="DynamicDock">
-                <NavigationViewItem.Icon><FontIcon Glyph="&#xE89A;"/></NavigationViewItem.Icon>
+
+            <NavigationViewItem x:Uid="NavDynamicDock" Tag="DynamicDock">
+                <NavigationViewItem.Icon>
+                    <PathIcon Data="F0 M 6,1.25 H 18 A 4.75,4.75 0 0 1 22.75,6 V 18 A 4.75,4.75 0 0 1 18,22.75 H 6 A 4.75,4.75 0 0 1 1.25,18 V 6 A 4.75,4.75 0 0 1 6,1.25 Z M 6,2.75 H 18 A 3.25,3.25 0 0 1 21.25,6 V 18 A 3.25,3.25 0 0 1 18,21.25 H 6 A 3.25,3.25 0 0 1 2.75,18 V 6 A 3.25,3.25 0 0 1 6,2.75 Z M 7.5,17 H 13 A 1.5,1.5 0 0 1 14.5,18.5 V 18.5 A 1.5,1.5 0 0 1 13,20 H 7.5 A 1.5,1.5 0 0 1 6,18.5 V 18.5 A 1.5,1.5 0 0 1 7.5,17 Z M 16.5,17 H 16.5 A 1.5,1.5 0 0 1 18,18.5 V 18.5 A 1.5,1.5 0 0 1 16.5,20 H 16.5 A 1.5,1.5 0 0 1 15,18.5 V 18.5 A 1.5,1.5 0 0 1 16.5,17 Z" />
+                </NavigationViewItem.Icon>
             </NavigationViewItem>
         </NavigationView.MenuItems>
 
@@ -40,9 +48,9 @@
 
                 <!-- ALGEMEEN PAGE -->
                 <StackPanel x:Name="GeneralPage" Spacing="4" Visibility="Visible">
-                    <TextBlock Text="General" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,20"/>
+                    <TextBlock x:Uid="TitleGeneral" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,20"/>
 
-                    <TextBlock Text="System" FontSize="13" FontWeight="SemiBold" Margin="2,8,0,6"
+                    <TextBlock x:Uid="HeaderSystem" FontSize="13" FontWeight="SemiBold" Margin="2,8,0,6"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                     <Border CornerRadius="8"
@@ -60,8 +68,8 @@
                                 <FontIcon Glyph="&#xE7E8;" Foreground="White" FontSize="16"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
-                                <TextBlock Text="Start with Windows" FontSize="14"/>
-                                <TextBlock Text="Start Project Valley automatically on login"
+                                <TextBlock x:Uid="SettingStartWithWindows" FontSize="14"/>
+                                <TextBlock x:Uid="SettingStartWithWindowsDesc"
                                            FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
                             </StackPanel>
                             <ToggleSwitch x:Name="StartAtBootToggle" Grid.Column="2"
@@ -70,8 +78,37 @@
                                           Toggled="ToggleStartAtBoot_Toggled"/>
                         </Grid>
                     </Border>
+                    
+                    <Border CornerRadius="8"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1" Padding="16,14" Margin="0,2">
+                        <Grid ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="6"
+                                    Background="{ThemeResource SystemAccentColorDark2}">
+                                <FontIcon Glyph="&#xE774;" Foreground="White" FontSize="16"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                                <TextBlock x:Uid="SettingLanguage" FontSize="14"/>
+                                <TextBlock x:Uid="SettingLanguageDesc"
+                                           FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <ComboBox x:Name="LanguageComboBox" Grid.Column="2" 
+                                      Margin="8,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right" MinWidth="150"
+                                      SelectionChanged="LanguageComboBox_SelectionChanged">
+                                <ComboBoxItem x:Uid="LangSystem" Tag="Default"/>
+                                <ComboBoxItem x:Uid="LangEnglish" Tag="en-US"/>
+                                <ComboBoxItem x:Uid="LangDutch" Tag="nl-NL"/>
+                            </ComboBox>
+                        </Grid>
+                    </Border>
 
-                    <TextBlock Text="About" FontSize="13" FontWeight="SemiBold" Margin="2,20,0,6"
+                    <TextBlock x:Uid="HeaderAbout" FontSize="13" FontWeight="SemiBold" Margin="2,20,0,6"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                     <Border CornerRadius="8"
@@ -87,8 +124,8 @@
                                 <FontIcon Glyph="&#xE946;" Foreground="White" FontSize="16"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Project Valley" FontSize="14"/>
-                                <TextBlock Text="Version 0.1.0 — Early preview"
+                                <TextBlock x:Uid="SettingAboutPV" FontSize="14"/>
+                                <TextBlock x:Uid="SettingAboutPVDesc"
                                            FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             </StackPanel>
                         </Grid>
@@ -97,9 +134,9 @@
 
                 <!-- PANEEL PAGE -->
                 <StackPanel x:Name="PanelPage" Spacing="4" Visibility="Collapsed">
-                    <TextBlock Text="Panel" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,20"/>
+                    <TextBlock x:Uid="TitlePanel" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,20"/>
 
-                    <TextBlock Text="Look" FontSize="13" FontWeight="SemiBold" Margin="2,8,0,6"
+                    <TextBlock x:Uid="HeaderLook" FontSize="13" FontWeight="SemiBold" Margin="2,8,0,6"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                     <Border CornerRadius="8"
@@ -116,8 +153,8 @@
                                 <FontIcon Glyph="&#xE73F;" Foreground="White" FontSize="16"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
-                                <TextBlock Text="Show top panel" FontSize="14"/>
-                                <TextBlock Text="Display the status bar at the top of the screen"
+                                <TextBlock x:Uid="SettingShowTopPanel" FontSize="14"/>
+                                <TextBlock x:Uid="SettingShowTopPanelDesc"
                                            FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
                             </StackPanel>
                             <ToggleSwitch x:Name="ShowTopPanelToggle" Grid.Column="2" Margin="8,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right" MinWidth="0"
@@ -139,8 +176,8 @@
                                 <FontIcon Glyph="&#xE83F;" Foreground="White" FontSize="16"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
-                                <TextBlock Text="Show battery percentage" FontSize="14"/>
-                                <TextBlock Text="Display the battery percentage next to the icon"
+                                <TextBlock x:Uid="SettingShowBattery" FontSize="14"/>
+                                <TextBlock x:Uid="SettingShowBatteryDesc"
                                            FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
                             </StackPanel>
                             <ToggleSwitch x:Name="ShowBatteryPercentageToggle" Grid.Column="2" Margin="8,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right" MinWidth="0"
@@ -162,8 +199,8 @@
                                 <FontIcon Glyph="&#xE8A1;" Foreground="White" FontSize="16"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
-                                <TextBlock Text="Height panel (pixels)" FontSize="14"/>
-                                <TextBlock Text="Standard: 32px"
+                                <TextBlock x:Uid="SettingPanelHeight" FontSize="14"/>
+                                <TextBlock x:Uid="SettingPanelHeightDesc"
                                            FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
                             </StackPanel>
                             <NumberBox x:Name="PanelHeightBox" Grid.Column="2" Minimum="32" Maximum="128" Value="32"
@@ -172,7 +209,7 @@
                         </Grid>
                     </Border>
                     
-                    <TextBlock Text="Weather" FontSize="13" FontWeight="SemiBold" Margin="2,8,0,6"
+                    <TextBlock x:Uid="HeaderWeather" FontSize="13" FontWeight="SemiBold" Margin="2,8,0,6"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                     <Border CornerRadius="8"
@@ -190,38 +227,14 @@
                                 <FontIcon Glyph="&#xE81D;" Foreground="White" FontSize="16"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
-                                <TextBlock Text="Custom coordinates" FontSize="14"/>
-                                <TextBlock Text="Location for weather (leave empty for auto IP detection)"
+                                <TextBlock x:Uid="SettingCustomCoords" FontSize="14"/>
+                                <TextBlock x:Uid="SettingCustomCoordsDesc"
                                            FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
                             </StackPanel>
-                            <TextBox x:Name="LatTextBox" Grid.Column="2" PlaceholderText="Latitude" TextChanged="Location_TextChanged" Margin="0,0,8,0" VerticalAlignment="Center" />
-                            <TextBox x:Name="LonTextBox" Grid.Column="3" PlaceholderText="Longitude" TextChanged="Location_TextChanged" VerticalAlignment="Center" />
+                            <TextBox x:Name="LatTextBox" x:Uid="LatTextBox" Grid.Column="2" TextChanged="Location_TextChanged" Margin="0,0,8,0" VerticalAlignment="Center" />
+                            <TextBox x:Name="LonTextBox" x:Uid="LonTextBox" Grid.Column="3" TextChanged="Location_TextChanged" VerticalAlignment="Center" />
                         </Grid>
                     </Border>
-
-                    <!--<Border CornerRadius="8"
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1" Padding="16,14" Margin="0,2">
-                        <Grid ColumnSpacing="14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="6" Background="#6B4FA0">
-                                <FontIcon Glyph="&#xE8A1;" Foreground="White" FontSize="16"/>
-                            </Border>
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
-                                <TextBlock Text="Height panel (pixels)" FontSize="14"/>
-                                <TextBlock Text="Standard: 64px"
-                                           FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
-                            </StackPanel>
-                            <NumberBox Grid.Column="2" Minimum="32" Maximum="128" Value="64"
-                                       Width="100" Margin="8,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right"
-                                       SpinButtonPlacementMode="Compact"/>
-                        </Grid>
-                    </Border>-->
 
                     <Border CornerRadius="8"
                             Background="{ThemeResource LayerFillColorDefaultBrush}"
@@ -230,7 +243,7 @@
                         <StackPanel HorizontalAlignment="Center" Spacing="6">
                             <FontIcon Glyph="&#xF142;" FontSize="28"
                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
-                            <TextBlock Text="More panelsettigns coming soon"
+                            <TextBlock x:Uid="MorePanelSettings"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13"/>
                         </StackPanel>
@@ -240,9 +253,9 @@
                 <!-- DOCK PAGE -->
                 <StackPanel x:Name="DockPage" Spacing="4" Visibility="Collapsed">
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,20">
-                        <TextBlock Text="Dock" FontSize="28" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <TextBlock x:Uid="TitleDock" FontSize="28" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         <Border CornerRadius="6" Background="#22FFB900" BorderBrush="#88FFB900" BorderThickness="1" Padding="8,4" VerticalAlignment="Center">
-                            <TextBlock Text="🚧 Under construction" Foreground="#FFA000" FontSize="12" FontWeight="SemiBold"/>
+                            <TextBlock x:Uid="BadgeUnderConstruction" Foreground="#FFA000" FontSize="12" FontWeight="SemiBold"/>
                         </Border>
                     </StackPanel>
 
@@ -260,8 +273,8 @@
                                     <FontIcon Glyph="&#xE8F1;" Foreground="White" FontSize="16"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
-                                    <TextBlock Text="Show dock" FontSize="14"/>
-                                    <TextBlock Text="Display the application dock at the bottom of the screen"
+                                    <TextBlock x:Uid="SettingShowDock" FontSize="14"/>
+                                    <TextBlock x:Uid="SettingShowDockDesc"
                                                FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
                                 <ToggleSwitch x:Name="ShowDockToggle" Grid.Column="2" Margin="8,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right" MinWidth="0"
@@ -280,8 +293,8 @@
                                     <FontIcon Glyph="&#xECCD;" Foreground="White" FontSize="16"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
-                                    <TextBlock Text="Hide Windows taskbar" FontSize="14"/>
-                                    <TextBlock Text="Automatically hide the system taskbar when the dock is active"
+                                    <TextBlock x:Uid="SettingHideTaskbar" FontSize="14"/>
+                                    <TextBlock x:Uid="SettingHideTaskbarDesc"
                                                FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
                                 <ToggleSwitch x:Name="HideTaskbarToggle" Grid.Column="2" Margin="8,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right" MinWidth="0"
@@ -293,7 +306,7 @@
 
                 <!-- DYNAMISCHE DOCK PAGE -->
                 <StackPanel x:Name="DynamicDockPage" Spacing="4" Visibility="Collapsed">
-                    <TextBlock Text="Dynamic Dock" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,20"/>
+                    <TextBlock x:Uid="TitleDynamicDock" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,20"/>
                     
                     <Border CornerRadius="8" Background="{ThemeResource LayerFillColorDefaultBrush}"
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
@@ -301,11 +314,11 @@
                         <StackPanel HorizontalAlignment="Center" Spacing="8">
                             <FontIcon Glyph="&#xF142;" FontSize="36"
                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Dynamic Dock" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Advanced features like auto-expanding app groups and system tray"
+                            <TextBlock x:Uid="TitleDynamicDock" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                            <TextBlock x:Uid="DynamicDockDesc1"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13"/>
-                            <TextBlock Text="Coming soon in a future version"
+                            <TextBlock x:Uid="DynamicDockDesc2"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12"
                                        Opacity="0.6"/>

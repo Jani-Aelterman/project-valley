@@ -8,6 +8,7 @@ namespace NextValleyDock.Views
         public SettingsWindow()
         {
             this.InitializeComponent();
+            WinUIEx.WindowExtensions.SetIcon(this, System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Assets", "Project-Valley-Logo-Rounded.ico"));
             this.ExtendsContentIntoTitleBar = true;
 
             // Mica backdrop
@@ -28,6 +29,17 @@ namespace NextValleyDock.Views
             LonTextBox.Text = Helpers.SettingsManager.Longitude;
             
             PanelHeightBox.Value = Helpers.SettingsManager.PanelHeight;
+
+            // Load language setting
+            string lang = Helpers.SettingsManager.Language;
+            foreach (ComboBoxItem item in LanguageComboBox.Items)
+            {
+                if ((string)item.Tag == lang)
+                {
+                    LanguageComboBox.SelectedItem = item;
+                    break;
+                }
+            }
         }
 
         private const string RunKey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
@@ -105,6 +117,19 @@ namespace NextValleyDock.Views
         {
             if (double.IsNaN(sender.Value)) return;
             Helpers.SettingsManager.PanelHeight = (int)sender.Value;
+        }
+
+        private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (LanguageComboBox.SelectedItem is ComboBoxItem item)
+            {
+                string tag = (string)item.Tag;
+                if (Helpers.SettingsManager.Language != tag)
+                {
+                    Helpers.SettingsManager.Language = tag;
+                    // Usually requires restart, can prompt or ignore
+                }
+            }
         }
     }
 }

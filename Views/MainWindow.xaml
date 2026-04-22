@@ -7,7 +7,7 @@
     xmlns:winuiex="using:WinUIEx"
     xmlns:tb="using:H.NotifyIcon"
     mc:Ignorable="d"
-    Title="Next Valley Panel">
+    x:Uid="MainWindow">
 
     <!-- Mica backdrop commented out - using Win32 DWM transparency instead -->
     <!--<Window.SystemBackdrop>
@@ -22,18 +22,18 @@
       
         <Grid.ContextFlyout>
             <MenuFlyout>
-                <MenuFlyoutItem Text="Task Manager" Click="TaskManagerMenuItem_Click">
+                <MenuFlyoutItem x:Uid="MenuTaskManager" Click="TaskManagerMenuItem_Click">
                     <MenuFlyoutItem.Icon>
                         <FontIcon Glyph="&#xE9D9;" /> <!-- task view / tasks icon -->
                     </MenuFlyoutItem.Icon>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem Text="Settings" Click="SettingsMenuItem_Click">
+                <MenuFlyoutItem x:Uid="MenuSettings" Click="SettingsMenuItem_Click">
                     <MenuFlyoutItem.Icon>
                         <FontIcon Glyph="&#xE713;" />
                     </MenuFlyoutItem.Icon>
                 </MenuFlyoutItem>
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Text="Exit Project Valley" Click="ExitMenuItem_Click">
+                <MenuFlyoutItem x:Uid="MenuExit" Click="ExitMenuItem_Click">
                     <MenuFlyoutItem.Icon>
                         <FontIcon Glyph="&#xE7E8;" />
                     </MenuFlyoutItem.Icon>
@@ -62,7 +62,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- 1. Weather Widget (Left) -->
-                <Button Grid.Column="0" Background="Transparent" BorderThickness="0" Padding="8,4" CornerRadius="6" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTipService.ToolTip="Weather" Click="OpenWidgets">
+                <Button Grid.Column="0" Background="Transparent" BorderThickness="0" Padding="8,4" CornerRadius="6" HorizontalAlignment="Left" VerticalAlignment="Center" x:Uid="TooltipWeather" Click="OpenWidgets">
                     <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                             <Image x:Name="WeatherIcon" Source="ms-appx:///Assets/WeatherIcons/AAehE44.png" Width="20" Height="20" Stretch="Uniform"/>
                           <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Spacing="12">
@@ -77,7 +77,7 @@
                         <FontIcon Glyph="&#xE721;" FontSize="14" Margin="10,0,6,0" Foreground="Gray" VerticalAlignment="Center"/>
 
                         <!-- Search text -->
-                        <TextBox PlaceholderText="Type here to search..." 
+                        <TextBox x:Uid="SearchBox" 
                                  Background="Transparent" 
                                  BorderThickness="0" 
                                  VerticalAlignment="Center" 
@@ -109,7 +109,7 @@
                 <!-- 3. Status Area (Right) -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <!-- Control Center -->
-                    <Button Background="Transparent" BorderThickness="0" Padding="12,6" CornerRadius="6" VerticalAlignment="Center" ToolTipService.ToolTip="Quick settings" Click="OpenActionCenter">
+                    <Button Background="Transparent" BorderThickness="0" Padding="12,6" CornerRadius="6" VerticalAlignment="Center" x:Uid="TooltipQuickSettings" Click="OpenActionCenter">
                         <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                             <FontIcon x:Name="NetworkIcon" Glyph="&#xE701;" FontSize="14"/>
                             <FontIcon x:Name="VolumeIcon" Glyph="&#xE767;" FontSize="14"/>
@@ -121,7 +121,7 @@
                     </Button>
 
                     <!-- Date / Time -->
-                    <Button Background="Transparent" BorderThickness="0" Padding="8,6" CornerRadius="6" VerticalAlignment="Center" ToolTipService.ToolTip="Calendar and notifications" Click="OpenCalendar">
+                    <Button Background="Transparent" BorderThickness="0" Padding="8,6" CornerRadius="6" VerticalAlignment="Center" x:Uid="TooltipCalendar" Click="OpenCalendar">
                         <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Spacing="8">
                             <TextBlock x:Name="DateTextBlock" Text="date" FontSize="11" VerticalAlignment="Center" />
                             <TextBlock x:Name="TimeTextBlock" Text="time" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
