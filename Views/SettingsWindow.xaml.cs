@@ -8,7 +8,8 @@ namespace NextValleyDock.Views
         public SettingsWindow()
         {
             this.InitializeComponent();
-            WinUIEx.WindowExtensions.SetIcon(this, System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Assets", "Project-Valley-Logo-Rounded.ico"));
+            string iconPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Assets", "Project-Valley-Logo-Rounded.ico");
+            this.AppWindow.SetIcon(iconPath);
             this.ExtendsContentIntoTitleBar = true;
 
             // Mica backdrop

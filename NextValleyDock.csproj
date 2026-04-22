@@ -36,6 +36,7 @@
         <NoWarn>$(NoWarn);CA1416;CS7022</NoWarn>
         <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
         <StartupObject>NextValleyDock.Program</StartupObject>
+        <ApplicationIcon>Assets\Project-Valley-Logo-Rounded.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>

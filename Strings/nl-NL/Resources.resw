@@ -126,4 +126,16 @@
   <data name="SearchBox.PlaceholderText" xml:space="preserve"><value>Typ hier om te zoeken...</value></data>
   <data name="TooltipQuickSettings.ToolTipService.ToolTip" xml:space="preserve"><value>Snelle instellingen</value></data>
   <data name="TooltipCalendar.ToolTipService.ToolTip" xml:space="preserve"><value>Kalender en meldingen</value></data>
+  <data name="WeatherSunny" xml:space="preserve"><value>Zonnig</value></data>
+  <data name="WeatherMostlySunny" xml:space="preserve"><value>Grotendeels zonnig</value></data>
+  <data name="WeatherPartlyCloudy" xml:space="preserve"><value>Gedeeltelijk bewolkt</value></data>
+  <data name="WeatherOvercast" xml:space="preserve"><value>Bewolkt</value></data>
+  <data name="WeatherFog" xml:space="preserve"><value>Mist</value></data>
+  <data name="WeatherDrizzle" xml:space="preserve"><value>Motregen</value></data>
+  <data name="WeatherRain" xml:space="preserve"><value>Regen</value></data>
+  <data name="WeatherSnow" xml:space="preserve"><value>Sneeuw</value></data>
+  <data name="WeatherShowers" xml:space="preserve"><value>Regenbuien</value></data>
+  <data name="WeatherSnowShowers" xml:space="preserve"><value>Sneeuwbuien</value></data>
+  <data name="WeatherThunderstorm" xml:space="preserve"><value>Onweer</value></data>
+  <data name="WeatherUnknown" xml:space="preserve"><value>Onbekend</value></data>
 </root>

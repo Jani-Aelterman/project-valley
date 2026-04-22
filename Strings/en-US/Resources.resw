@@ -126,4 +126,16 @@
   <data name="SearchBox.PlaceholderText" xml:space="preserve"><value>Type here to search...</value></data>
   <data name="TooltipQuickSettings.ToolTipService.ToolTip" xml:space="preserve"><value>Quick settings</value></data>
   <data name="TooltipCalendar.ToolTipService.ToolTip" xml:space="preserve"><value>Calendar and notifications</value></data>
+  <data name="WeatherSunny" xml:space="preserve"><value>Sunny</value></data>
+  <data name="WeatherMostlySunny" xml:space="preserve"><value>Mostly Sunny</value></data>
+  <data name="WeatherPartlyCloudy" xml:space="preserve"><value>Partly Cloudy</value></data>
+  <data name="WeatherOvercast" xml:space="preserve"><value>Overcast</value></data>
+  <data name="WeatherFog" xml:space="preserve"><value>Fog</value></data>
+  <data name="WeatherDrizzle" xml:space="preserve"><value>Drizzle</value></data>
+  <data name="WeatherRain" xml:space="preserve"><value>Rain</value></data>
+  <data name="WeatherSnow" xml:space="preserve"><value>Snow</value></data>
+  <data name="WeatherShowers" xml:space="preserve"><value>Showers</value></data>
+  <data name="WeatherSnowShowers" xml:space="preserve"><value>Snow Showers</value></data>
+  <data name="WeatherThunderstorm" xml:space="preserve"><value>Thunderstorm</value></data>
+  <data name="WeatherUnknown" xml:space="preserve"><value>Unknown</value></data>
 </root>

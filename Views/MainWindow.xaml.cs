@@ -98,13 +98,13 @@ namespace NextValleyDock
         private IntPtr _hWnd = IntPtr.Zero;   // main window
         private IntPtr _trayHwnd = IntPtr.Zero; // hidden tray message window
         private Microsoft.UI.Xaml.Window? _trayWindow;
-        private static string GetAppIconPath() => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Project-Valley-Logo-Rounded.ico");
+        private static string GetAppIconPath() => Path.Combine(AppContext.BaseDirectory, "Assets", "Project-Valley-Logo-Rounded.ico");
 
         public MainWindow()
         {
             this.InitializeComponent();
             this.Closed += MainWindow_Closed;
-            WinUIEx.WindowExtensions.SetIcon(this, GetAppIconPath());
+            this.AppWindow.SetIcon(GetAppIconPath());
 
             this.ExtendsContentIntoTitleBar = true;
 
@@ -184,7 +184,7 @@ namespace NextValleyDock
             if (_settingsWindow == null)
             {
                 _settingsWindow = new Views.SettingsWindow();
-                WinUIEx.WindowExtensions.SetIcon(_settingsWindow, GetAppIconPath());
+                // Icon is set inside SettingsWindow constructor
                 _settingsWindow.Closed += (s, args) => _settingsWindow = null;
             }
             _settingsWindow.Activate();
@@ -253,7 +253,7 @@ namespace NextValleyDock
             // Create a hidden tray message window (CmdPal pattern — subclass a separate Window)
             _hWnd = hWnd;
             _trayWindow = new Microsoft.UI.Xaml.Window();
-            WinUIEx.WindowExtensions.SetIcon(this, GetAppIconPath());
+            _trayWindow.AppWindow.SetIcon(GetAppIconPath());
             _trayHwnd = Microsoft.UI.Win32Interop.GetWindowFromWindowId(_trayWindow.AppWindow.Id);
 
             // Subclass the tray window's WndProc (separate window is subclassable; main window may not be)
@@ -637,21 +637,29 @@ namespace NextValleyDock
 
         private (string icon, string description, Windows.UI.Color color) GetWeatherDisplayInfo(int wmoc)
         {
+            var loader = new Microsoft.Windows.ApplicationModel.Resources.ResourceLoader();
+            string GetString(string key, string defaultVal) {
+                try {
+                    string val = loader.GetString(key);
+                    return string.IsNullOrEmpty(val) ? defaultVal : val;
+                } catch { return defaultVal; }
+            }
+
             // WMO Weather interpretation codes (WW) mapped to Bing Weather icons
             return wmoc switch
             {
-                0 => ("ms-appx:///Assets/WeatherIcons/Sunny.png", "Sunny", Windows.UI.Color.FromArgb(255, 255, 165, 0)), // Clear sky
-                1 => ("ms-appx:///Assets/WeatherIcons/DayPartlyCloudy.png", "Mostly Sunny", Windows.UI.Color.FromArgb(255, 255, 165, 0)),
-                2 => ("ms-appx:///Assets/WeatherIcons/DayPartlyCloudy.png", "Partly Cloudy", Windows.UI.Color.FromArgb(255, 200, 200, 200)),
-                3 => ("ms-appx:///Assets/WeatherIcons/Cloudy.png", "Overcast", Windows.UI.Color.FromArgb(255, 150, 150, 150)),
-                45 or 48 => ("ms-appx:///Assets/WeatherIcons/Fog.png", "Fog", Windows.UI.Color.FromArgb(255, 180, 180, 180)),
-                51 or 53 or 55 or 56 or 57 => ("ms-appx:///Assets/WeatherIcons/Rain.png", "Drizzle", Windows.UI.Color.FromArgb(255, 150, 150, 150)),
-                61 or 63 or 65 or 66 or 67 => ("ms-appx:///Assets/WeatherIcons/Rain.png", "Rain", Windows.UI.Color.FromArgb(255, 0, 120, 215)),
-                71 or 73 or 75 or 77 => ("ms-appx:///Assets/WeatherIcons/LightSnow.png", "Snow", Windows.UI.Color.FromArgb(255, 255, 255, 255)),
-                80 or 81 or 82 => ("ms-appx:///Assets/WeatherIcons/DayRainShowers.png", "Showers", Windows.UI.Color.FromArgb(255, 0, 120, 215)),
-                85 or 86 => ("ms-appx:///Assets/WeatherIcons/DaySnowShowers.png", "Snow Showers", Windows.UI.Color.FromArgb(255, 255, 255, 255)),
-                95 or 96 or 99 => ("ms-appx:///Assets/WeatherIcons/Thunderstorm.png", "Thunderstorm", Windows.UI.Color.FromArgb(255, 100, 100, 150)),
-                _ => ("ms-appx:///Assets/WeatherIcons/Sunny.png", "Unknown", Windows.UI.Color.FromArgb(255, 150, 150, 150))
+                0 => ("ms-appx:///Assets/WeatherIcons/Sunny.png", GetString("WeatherSunny", "Sunny"), Windows.UI.Color.FromArgb(255, 255, 165, 0)), // Clear sky
+                1 => ("ms-appx:///Assets/WeatherIcons/DayPartlyCloudy.png", GetString("WeatherMostlySunny", "Mostly Sunny"), Windows.UI.Color.FromArgb(255, 255, 165, 0)),
+                2 => ("ms-appx:///Assets/WeatherIcons/DayPartlyCloudy.png", GetString("WeatherPartlyCloudy", "Partly Cloudy"), Windows.UI.Color.FromArgb(255, 200, 200, 200)),
+                3 => ("ms-appx:///Assets/WeatherIcons/Cloudy.png", GetString("WeatherOvercast", "Overcast"), Windows.UI.Color.FromArgb(255, 150, 150, 150)),
+                45 or 48 => ("ms-appx:///Assets/WeatherIcons/Fog.png", GetString("WeatherFog", "Fog"), Windows.UI.Color.FromArgb(255, 180, 180, 180)),
+                51 or 53 or 55 or 56 or 57 => ("ms-appx:///Assets/WeatherIcons/Rain.png", GetString("WeatherDrizzle", "Drizzle"), Windows.UI.Color.FromArgb(255, 150, 150, 150)),
+                61 or 63 or 65 or 66 or 67 => ("ms-appx:///Assets/WeatherIcons/Rain.png", GetString("WeatherRain", "Rain"), Windows.UI.Color.FromArgb(255, 0, 120, 215)),
+                71 or 73 or 75 or 77 => ("ms-appx:///Assets/WeatherIcons/LightSnow.png", GetString("WeatherSnow", "Snow"), Windows.UI.Color.FromArgb(255, 255, 255, 255)),
+                80 or 81 or 82 => ("ms-appx:///Assets/WeatherIcons/DayRainShowers.png", GetString("WeatherShowers", "Showers"), Windows.UI.Color.FromArgb(255, 0, 120, 215)),
+                85 or 86 => ("ms-appx:///Assets/WeatherIcons/DaySnowShowers.png", GetString("WeatherSnowShowers", "Snow Showers"), Windows.UI.Color.FromArgb(255, 255, 255, 255)),
+                95 or 96 or 99 => ("ms-appx:///Assets/WeatherIcons/Thunderstorm.png", GetString("WeatherThunderstorm", "Thunderstorm"), Windows.UI.Color.FromArgb(255, 100, 100, 150)),
+                _ => ("ms-appx:///Assets/WeatherIcons/Sunny.png", GetString("WeatherUnknown", "Unknown"), Windows.UI.Color.FromArgb(255, 150, 150, 150))
             };
         }
 
