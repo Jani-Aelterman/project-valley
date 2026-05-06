@@ -103,6 +103,18 @@ namespace NextValleyDock.Helpers
             set => SetBool("HideTaskbar", value);
         }
 
+        public static bool UseCustomTrayMenu
+        {
+            get => GetBool("UseCustomTrayMenu", true);
+            set => SetBool("UseCustomTrayMenu", value);
+        }
+
+        public static bool UseCustomActionCenter
+        {
+            get => GetBool("UseCustomActionCenter", true);
+            set => SetBool("UseCustomActionCenter", value);
+        }
+
         public static string Latitude
         {
             get => GetString("Latitude", ""); // Empty means auto-detect
@@ -123,8 +135,42 @@ namespace NextValleyDock.Helpers
 
         public static string Language
         {
-            get => GetString("Language", "Default"); // "Default", "en", "nl"
+            get => GetString("Language", "Default"); // "Default", "en-US", "nl-NL"
             set => SetString("Language", value);
+        }
+
+        public static string Theme
+        {
+            get => GetString("Theme", "System"); // "System", "Light", "Dark"
+            set => SetString("Theme", value);
+        }
+
+        public static void NotifyThemeChanged()
+        {
+            SettingChanged?.Invoke(null, "Theme");
+        }
+
+        public static Microsoft.UI.Xaml.ElementTheme GetResolvedTheme()
+        {
+            string theme = Theme;
+            if (theme == "Light") return Microsoft.UI.Xaml.ElementTheme.Light;
+            if (theme == "Dark") return Microsoft.UI.Xaml.ElementTheme.Dark;
+
+            // Default to System, check Windows theme (SystemUsesLightTheme)
+            try
+            {
+                using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+                if (key != null)
+                {
+                    object? val = key.GetValue("SystemUsesLightTheme");
+                    if (val is int i && i == 1)
+                    {
+                        return Microsoft.UI.Xaml.ElementTheme.Light;
+                    }
+                }
+            }
+            catch { }
+            return Microsoft.UI.Xaml.ElementTheme.Dark; // Fallback
         }
     }
 }

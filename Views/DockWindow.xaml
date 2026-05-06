@@ -10,7 +10,8 @@
     Title="Next Valley Dock">
 
     <Grid Background="Transparent">
-        <Border x:Name="PillRoot"
+        <Grid x:Name="ThemeRoot">
+            <Border x:Name="PillRoot"
                 CornerRadius="0" 
                 Background="Transparent" 
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
@@ -59,11 +60,10 @@
                             <MenuFlyoutItem x:Uid="MenuDesktop" Click="PowerMenu_Click" Tag="desktop"/>
                         </MenuFlyout>
                     </Button.ContextFlyout>
-                    <BitmapIcon UriSource="ms-appx:///Assets/Windows11Logo.png" 
-                                ShowAsMonochrome="True" 
-                                Foreground="{ThemeResource TextFillColorPrimaryBrush}" 
-                                Width="28" Height="28" 
-                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="ms-appx:///Assets/Windows11Logo.png" 
+                           Width="28" Height="28" 
+                           Stretch="Uniform"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Button>
 
                 <!-- Separator -->
@@ -122,5 +122,6 @@
                 </ItemsControl>
             </StackPanel>
         </Border>
+        </Grid>
     </Grid>
 </winuiex:WindowEx>

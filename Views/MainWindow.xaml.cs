@@ -124,6 +124,7 @@ namespace NextValleyDock
             // Load settings and listen for changes
             Helpers.SettingsManager.SettingChanged += OnSettingChanged;
             ApplyPanelSettings();
+            ApplyCurrentTheme();
         }
 
         private void OnSettingChanged(object? sender, string settingName)
@@ -131,6 +132,30 @@ namespace NextValleyDock
             if (settingName == "ShowTopPanel" || settingName == "PanelHeight")
             {
                 this.DispatcherQueue.TryEnqueue(() => ApplyPanelSettings());
+            }
+            else if (settingName == "Theme")
+            {
+                this.DispatcherQueue.TryEnqueue(() => ApplyCurrentTheme());
+            }
+        }
+
+        private void ApplyCurrentTheme()
+        {
+            try
+            {
+                var theme = Helpers.SettingsManager.GetResolvedTheme();
+                ThemeRoot.RequestedTheme = theme;
+                if (_trayWindow?.Content is FrameworkElement tfe) tfe.RequestedTheme = theme;
+                if (_quickSettingsWindow != null && _quickSettingsWindow.Content is FrameworkElement qfe) qfe.RequestedTheme = theme;
+                
+                if (this.SystemBackdrop is Helpers.AlwaysActiveDesktopAcrylic backdrop)
+                {
+                    backdrop.UpdateTheme();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.AppendAllText("theme_crash.log", "MainWindow Theme crash: " + ex.ToString() + "\n");
             }
         }
 
@@ -149,6 +174,8 @@ namespace NextValleyDock
             }
         }
         private Views.SettingsWindow? _settingsWindow;
+        private Views.QuickSettingsWindow? _quickSettingsWindow;
+        private Views.TrayMenuWindow? _trayMenuWindow;
 
         private const uint WM_DISPLAYCHANGE = 0x007E;
         private const uint WM_DPICHANGED = 0x02E0;
@@ -173,6 +200,10 @@ namespace NextValleyDock
                 timer.Tick += (s, e) => {
                     timer.Stop();
                     UpdateDockPosition();
+                    if (Helpers.SettingsManager.Theme == "System")
+                    {
+                        Helpers.SettingsManager.NotifyThemeChanged();
+                    }
                 };
                 timer.Start();
             }
@@ -254,6 +285,7 @@ namespace NextValleyDock
             _hWnd = hWnd;
             _trayWindow = new Microsoft.UI.Xaml.Window();
             _trayWindow.AppWindow.SetIcon(GetAppIconPath());
+            if (_trayWindow.Content is FrameworkElement tfe) tfe.RequestedTheme = Helpers.SettingsManager.GetResolvedTheme();
             _trayHwnd = Microsoft.UI.Win32Interop.GetWindowFromWindowId(_trayWindow.AppWindow.Id);
 
             // Subclass the tray window's WndProc (separate window is subclassable; main window may not be)
@@ -523,7 +555,99 @@ namespace NextValleyDock
         }
 
         private void OpenWidgets(object sender, RoutedEventArgs e) => SimulateWinKey(0x57); // Win + W
-        private void OpenActionCenter(object sender, RoutedEventArgs e) => SimulateWinKey(0x41); // Win + A
+        private void OpenActionCenter(object sender, RoutedEventArgs e)
+        {
+            if (!Helpers.SettingsManager.UseCustomActionCenter)
+            {
+                SimulateWinKey(0x41); // Win + A
+                return;
+            }
+
+            if (_quickSettingsWindow == null)
+            {
+                _quickSettingsWindow = new Views.QuickSettingsWindow();
+                _quickSettingsWindow.Closed += (s, ev) => { _quickSettingsWindow = null; };
+            }
+
+            // Position it above the dock
+            var appWindow = _quickSettingsWindow.AppWindow;
+            if (appWindow != null)
+            {
+                var workArea = Microsoft.UI.Windowing.DisplayArea.Primary.WorkArea;
+                int windowWidth = 380;
+                int windowHeight = 400;
+                int padding = 20;
+                
+                int x = workArea.X + workArea.Width - windowWidth - padding;
+                int y = workArea.Y + workArea.Height - windowHeight - padding;
+                
+                if (Helpers.SettingsManager.ShowTopPanel)
+                {
+                    y = workArea.Y + Helpers.SettingsManager.PanelHeight + padding;
+                }
+
+                appWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, windowWidth, windowHeight));
+            }
+
+            _quickSettingsWindow.Activate();
+            WinUIEx.WindowExtensions.SetForegroundWindow(_quickSettingsWindow);
+        }
+
+        private DateTime _lastTrayCloseTime = DateTime.MinValue;
+
+        private async void OpenTrayMenu(object sender, RoutedEventArgs e)
+        {
+            if (!Helpers.SettingsManager.UseCustomTrayMenu)
+            {
+                SimulateWinKey(0x42); // Win + B
+                await Task.Delay(100);
+                keybd_event(0x0D, 0, 0, UIntPtr.Zero); // Enter
+                keybd_event(0x0D, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+                return;
+            }
+
+            if ((DateTime.Now - _lastTrayCloseTime).TotalMilliseconds < 200)
+            {
+                return;
+            }
+
+            if (_trayMenuWindow == null)
+            {
+                _trayMenuWindow = new Views.TrayMenuWindow();
+                _trayMenuWindow.Closed += (s, ev) => { 
+                    _trayMenuWindow = null; 
+                    AnimateChevron(0); 
+                    _lastTrayCloseTime = DateTime.Now;
+                };
+
+                _trayMenuWindow.UpdateWindowSize();
+
+                _trayMenuWindow.Activate();
+                WinUIEx.WindowExtensions.SetForegroundWindow(_trayMenuWindow);
+                AnimateChevron(180);
+            }
+            else
+            {
+                _trayMenuWindow.Close();
+                _trayMenuWindow = null;
+            }
+        }
+
+        private void AnimateChevron(double targetAngle)
+        {
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            var animation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = targetAngle,
+                Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                EnableDependentAnimation = true
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(animation, TrayChevronRotation);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(animation, "Angle");
+            storyboard.Children.Add(animation);
+            storyboard.Begin();
+        }
+
         private void OpenCalendar(object sender, RoutedEventArgs e) => SimulateWinKey(0x4E); // Win + N
 
 

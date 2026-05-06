@@ -9,26 +9,34 @@ namespace NextValleyDock.Helpers
     public class AlwaysActiveDesktopAcrylic : Microsoft.UI.Xaml.Media.SystemBackdrop
     {
         private Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController? _controller;
+        private Microsoft.UI.Composition.SystemBackdrops.SystemBackdropConfiguration? _configuration;
 
         protected override void OnTargetConnected(Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop connectedTarget, Microsoft.UI.Xaml.XamlRoot xamlRoot)
         {
             base.OnTargetConnected(connectedTarget, xamlRoot);
             _controller = new Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController();
             
-            var configuration = new Microsoft.UI.Composition.SystemBackdrops.SystemBackdropConfiguration();
+            _configuration = new Microsoft.UI.Composition.SystemBackdrops.SystemBackdropConfiguration();
             
             // CRUCIAL: Force it to be always active so it never dims when clicking outside the panel
-            configuration.IsInputActive = true; 
+            _configuration.IsInputActive = true; 
 
-            switch (Application.Current.RequestedTheme)
-            {
-                case ApplicationTheme.Dark: configuration.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Dark; break;
-                case ApplicationTheme.Light: configuration.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Light; break;
-                default: configuration.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Default; break;
-            }
+            UpdateTheme();
 
-            _controller.SetSystemBackdropConfiguration(configuration);
+            _controller.SetSystemBackdropConfiguration(_configuration);
             _controller.AddSystemBackdropTarget(connectedTarget);
+        }
+
+        public void UpdateTheme()
+        {
+            if (_configuration == null) return;
+            var theme = NextValleyDock.Helpers.SettingsManager.GetResolvedTheme();
+            switch (theme)
+            {
+                case ElementTheme.Dark: _configuration.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Dark; break;
+                case ElementTheme.Light: _configuration.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Light; break;
+                default: _configuration.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Default; break;
+            }
         }
 
         protected override void OnTargetDisconnected(Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop disconnectedTarget)

@@ -1,0 +1,65 @@
+<winuiex:WindowEx
+    x:Class="NextValleyDock.Views.QuickSettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winuiex="using:WinUIEx"
+    mc:Ignorable="d"
+    Width="380" Height="400"
+    IsTitleBarVisible="False"
+    IsMinimizable="False"
+    IsMaximizable="False"
+    IsResizable="False">
+
+    <Grid x:Name="ThemeRoot" Background="Transparent" Padding="16">
+        <Border CornerRadius="12" Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="16">
+            <StackPanel Spacing="16">
+                <!-- Toggles Row -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <ToggleButton x:Name="WifiToggle" Grid.Column="0" HorizontalAlignment="Stretch" Margin="0,0,8,0" Height="64" CornerRadius="8">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <FontIcon Glyph="&#xE701;" FontSize="20"/>
+                            <TextBlock Text="Wi-Fi" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </ToggleButton>
+
+                    <ToggleButton x:Name="BluetoothToggle" Grid.Column="1" HorizontalAlignment="Stretch" Margin="8,0,0,0" Height="64" CornerRadius="8">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <FontIcon Glyph="&#xE702;" FontSize="20"/>
+                            <TextBlock Text="Bluetooth" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </ToggleButton>
+                </Grid>
+
+                <MenuFlyoutSeparator Margin="0,8"/>
+
+                <!-- Brightness Slider -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <FontIcon Glyph="&#xE706;" FontSize="20" VerticalAlignment="Center" Margin="0,0,16,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <Slider x:Name="BrightnessSlider" Grid.Column="1" Minimum="0" Maximum="100" Value="100" ValueChanged="BrightnessSlider_ValueChanged"/>
+                </Grid>
+
+                <!-- Volume Slider -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <FontIcon Glyph="&#xE767;" FontSize="20" VerticalAlignment="Center" Margin="0,0,16,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <Slider x:Name="VolumeSlider" Grid.Column="1" Minimum="0" Maximum="100" Value="50" ValueChanged="VolumeSlider_ValueChanged"/>
+                </Grid>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</winuiex:WindowEx>

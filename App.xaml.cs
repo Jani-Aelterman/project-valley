@@ -21,6 +21,8 @@ namespace NextValleyDock
             WinUIEx.WindowExtensions.SetIcon(m_window, "Assets/Project-Valley-Logo.png");
             m_window.Activate();
 
+            Helpers.TrayService.Instance.Start();
+
             m_dockWindow = new Views.DockWindow();
             WinUIEx.WindowExtensions.SetIcon(m_dockWindow, "Assets/Project-Valley-Logo.png");
             

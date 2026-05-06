@@ -40,7 +40,35 @@ namespace NextValleyDock.Views
                 this.DispatcherQueue.TryEnqueue(() => UpdatePosition());
             };
 
+            Helpers.SettingsManager.SettingChanged += OnSettingChanged;
+            ApplyCurrentTheme();
+
             SetupAutoHide();
+        }
+
+        private void ApplyCurrentTheme()
+        {
+            try
+            {
+                ThemeRoot.RequestedTheme = Helpers.SettingsManager.GetResolvedTheme();
+                
+                if (this.SystemBackdrop is Helpers.AlwaysActiveDesktopAcrylic backdrop)
+                {
+                    backdrop.UpdateTheme();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.AppendAllText("theme_crash.log", "DockWindow Theme crash: " + ex.ToString() + "\n");
+            }
+        }
+
+        private void OnSettingChanged(object? sender, string settingName)
+        {
+            if (settingName == "Theme")
+            {
+                DispatcherQueue.TryEnqueue(ApplyCurrentTheme);
+            }
         }
 
         private DispatcherTimer? _autoHideTimer;

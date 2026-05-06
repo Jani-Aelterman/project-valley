@@ -138,4 +138,14 @@
   <data name="WeatherSnowShowers" xml:space="preserve"><value>Sneeuwbuien</value></data>
   <data name="WeatherThunderstorm" xml:space="preserve"><value>Onweer</value></data>
   <data name="WeatherUnknown" xml:space="preserve"><value>Onbekend</value></data>
+  <data name="SettingTheme.Text" xml:space="preserve"><value>Applicatiethema</value></data>
+  <data name="SettingThemeDesc.Text" xml:space="preserve"><value>Kies het kleurenthema voor de applicatie</value></data>
+  <data name="ThemeSystem.Content" xml:space="preserve"><value>Systeemstandaard</value></data>
+  <data name="ThemeLight.Content" xml:space="preserve"><value>Licht</value></data>
+  <data name="ThemeDark.Content" xml:space="preserve"><value>Donker</value></data>
+  <data name="HeaderFlyouts.Text" xml:space="preserve"><value>Menu's</value></data>
+  <data name="SettingUseCustomTrayMenu.Text" xml:space="preserve"><value>Gebruik eigen Systeemvak</value></data>
+  <data name="SettingUseCustomTrayMenuDesc.Text" xml:space="preserve"><value>Gebruik het Next Valley systeemvak in plaats van de Windows versie</value></data>
+  <data name="SettingUseCustomActionCenter.Text" xml:space="preserve"><value>Gebruik eigen Actiecentrum</value></data>
+  <data name="SettingUseCustomActionCenterDesc.Text" xml:space="preserve"><value>Gebruik het Next Valley actiecentrum in plaats van de Windows versie</value></data>
 </root>

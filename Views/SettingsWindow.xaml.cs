@@ -25,6 +25,8 @@ namespace NextValleyDock.Views
             ShowTopPanelToggle.IsOn = Helpers.SettingsManager.ShowTopPanel;
             ShowDockToggle.IsOn = Helpers.SettingsManager.ShowDock;
             HideTaskbarToggle.IsOn = Helpers.SettingsManager.HideTaskbar;
+            UseCustomTrayMenuToggle.IsOn = Helpers.SettingsManager.UseCustomTrayMenu;
+            UseCustomActionCenterToggle.IsOn = Helpers.SettingsManager.UseCustomActionCenter;
 
             LatTextBox.Text = Helpers.SettingsManager.Latitude;
             LonTextBox.Text = Helpers.SettingsManager.Longitude;
@@ -40,6 +42,38 @@ namespace NextValleyDock.Views
                     LanguageComboBox.SelectedItem = item;
                     break;
                 }
+            }
+
+            // Load theme setting
+            string theme = Helpers.SettingsManager.Theme;
+            foreach (ComboBoxItem item in ThemeComboBox.Items)
+            {
+                if ((string)item.Tag == theme)
+                {
+                    ThemeComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+
+            Helpers.SettingsManager.SettingChanged += OnSettingChanged;
+            this.Closed += (s, e) => Helpers.SettingsManager.SettingChanged -= OnSettingChanged;
+        }
+
+        private void OnSettingChanged(object? sender, string settingName)
+        {
+            if (settingName == "Theme")
+            {
+                DispatcherQueue.TryEnqueue(() => 
+                {
+                    try
+                    {
+                        ThemeRoot.RequestedTheme = Helpers.SettingsManager.GetResolvedTheme();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.IO.File.AppendAllText("theme_crash.log", "SettingsWindow Theme crash: " + ex.ToString() + "\n");
+                    }
+                });
             }
         }
 
@@ -98,6 +132,16 @@ namespace NextValleyDock.Views
             Helpers.SettingsManager.HideTaskbar = HideTaskbarToggle.IsOn;
         }
 
+        private void ToggleUseCustomTrayMenu_Toggled(object sender, RoutedEventArgs e)
+        {
+            Helpers.SettingsManager.UseCustomTrayMenu = UseCustomTrayMenuToggle.IsOn;
+        }
+
+        private void ToggleUseCustomActionCenter_Toggled(object sender, RoutedEventArgs e)
+        {
+            Helpers.SettingsManager.UseCustomActionCenter = UseCustomActionCenterToggle.IsOn;
+        }
+
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
             var tag = (args.SelectedItem as NavigationViewItem)?.Tag?.ToString();
@@ -129,6 +173,27 @@ namespace NextValleyDock.Views
                 {
                     Helpers.SettingsManager.Language = tag;
                     // Usually requires restart, can prompt or ignore
+                }
+            }
+        }
+
+        private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ThemeComboBox.SelectedItem is ComboBoxItem item)
+            {
+                string tag = (string)item.Tag;
+                if (Helpers.SettingsManager.Theme != tag)
+                {
+                    Helpers.SettingsManager.Theme = tag;
+                    // Update theme dynamically
+                    try
+                    {
+                        ThemeRoot.RequestedTheme = Helpers.SettingsManager.GetResolvedTheme();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.IO.File.AppendAllText("theme_crash.log", "SettingsWindow ComboBox crash: " + ex.ToString() + "\n");
+                    }
                 }
             }
         }

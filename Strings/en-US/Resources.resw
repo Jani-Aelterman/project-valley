@@ -138,4 +138,14 @@
   <data name="WeatherSnowShowers" xml:space="preserve"><value>Snow Showers</value></data>
   <data name="WeatherThunderstorm" xml:space="preserve"><value>Thunderstorm</value></data>
   <data name="WeatherUnknown" xml:space="preserve"><value>Unknown</value></data>
+  <data name="SettingTheme.Text" xml:space="preserve"><value>Application Theme</value></data>
+  <data name="SettingThemeDesc.Text" xml:space="preserve"><value>Choose the color theme for the application</value></data>
+  <data name="ThemeSystem.Content" xml:space="preserve"><value>System default</value></data>
+  <data name="ThemeLight.Content" xml:space="preserve"><value>Light</value></data>
+  <data name="ThemeDark.Content" xml:space="preserve"><value>Dark</value></data>
+  <data name="HeaderFlyouts.Text" xml:space="preserve"><value>Flyouts</value></data>
+  <data name="SettingUseCustomTrayMenu.Text" xml:space="preserve"><value>Use custom System Tray</value></data>
+  <data name="SettingUseCustomTrayMenuDesc.Text" xml:space="preserve"><value>Use the Next Valley tray instead of the Windows tray</value></data>
+  <data name="SettingUseCustomActionCenter.Text" xml:space="preserve"><value>Use custom Action Center</value></data>
+  <data name="SettingUseCustomActionCenterDesc.Text" xml:space="preserve"><value>Use the Next Valley action center instead of the Windows action center</value></data>
 </root>
